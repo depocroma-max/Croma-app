@@ -165,7 +165,7 @@
       <p class="selector-title">¿A dónde vas hoy?</p>
       <p class="selector-sub" id="selectorSub">Selecioná la sección que querés abrir.</p>
       <div class="app-cards">
-        <a class="app-card" id="cardPanel" href="https://depocroma-max.github.io/croma-panel/" target="_blank" rel="noopener">
+        <a class="app-card" id="cardPanel" href="https://depocroma-max.github.io/croma-panel/">
           <div class="app-card-icon" style="background:#fee2e2">📦</div>
           <div>
             <div class="app-card-name">PANEL</div>
@@ -173,7 +173,7 @@
           </div>
           <div class="app-card-arrow">→</div>
         </a>
-        <a class="app-card" id="cardHorarios" href="https://depocroma-max.github.io/croma-horarios/" target="_blank" rel="noopener">
+        <a class="app-card" id="cardHorarios" href="https://depocroma-max.github.io/croma-horarios/">
           <div class="app-card-icon" style="background:#dbeafe">🗓</div>
           <div>
             <div class="app-card-name">HORARIOS</div>
@@ -331,7 +331,7 @@
 
     function redirigirPorRol(rol) {
       if (rol === 'empleado') {
-        window.open(URL_HORARIOS, '_blank', 'noopener');
+        location.href = URL_HORARIOS;
       } else {
         mostrarSelector(rol);
       }
