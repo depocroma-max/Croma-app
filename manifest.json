@@ -9,14 +9,20 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "tridente_solo.png",
+      "src": "icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "tridente_solo.png",
+      "src": "icon.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "1500x1500",
       "type": "image/png",
       "purpose": "any maskable"
     }

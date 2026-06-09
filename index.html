@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Croma App</title>
-  <link rel="icon" href="tridente_solo.png">
+  <link rel="icon" href="icon.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0d0d0d">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Croma App">
-  <link rel="apple-touch-icon" href="tridente_solo.png">
+  <link rel="apple-touch-icon" href="icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -27,29 +27,25 @@
     /* SPLASH */
     #splash { position:fixed; inset:0; background:#0d0d0d; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; z-index:99999; transition:opacity .6s ease; }
     #splash.hide { opacity:0; pointer-events:none; }
-    #splashLogo { width:72px; height:72px; object-fit:contain; filter:brightness(0) invert(1); animation:splashIn .65s cubic-bezier(.39,.575,.565,1) both; }
-    #splashText { font-family:var(--font-display); font-size:34px; letter-spacing:8px; color:#fff; animation:splashIn .65s .15s cubic-bezier(.39,.575,.565,1) both; }
-    #splashSub  { font-size:11px; letter-spacing:4px; text-transform:uppercase; color:rgba(255,255,255,.3); animation:splashIn .65s .25s cubic-bezier(.39,.575,.565,1) both; }
+    #splashLogo { animation:splashIn .65s cubic-bezier(.39,.575,.565,1) both; }
+    #splash .logo-wrap { animation:splashIn .65s cubic-bezier(.39,.575,.565,1) both; }
     @keyframes splashIn { 0%{opacity:0;transform:scale(.85)} 100%{opacity:1;transform:scale(1)} }
 
-    /* TOPBAR */
-    .topbar { position:fixed; top:0; left:0; right:0; height:52px; background:var(--black); border-bottom:1px solid #222; display:flex; align-items:center; padding:0 2rem; z-index:100; }
-    .brand { display:flex; align-items:center; gap:10px; }
-    .brand-tridente { height:20px; filter:brightness(0) invert(1); }
-    .brand-logo { font-family:var(--font-display); font-size:20px; letter-spacing:2px; color:#fff; }
-    .brand-divider { color:#444; font-size:13px; }
-    .brand-section { font-size:10px; font-weight:500; letter-spacing:3px; color:var(--gray-400); text-transform:uppercase; }
+    /* LOGO BADGE */
+    .logo-wrap { position:relative; display:inline-flex; }
+    .logo-wrap img { display:block; }
+    .logo-app-badge { position:absolute; bottom:-2px; right:-4px; font-family:var(--font-display); font-size:11px; letter-spacing:3px; color:var(--accent); line-height:1; }
 
     /* MAIN */
-    .main { padding-top:52px; min-height:100vh; overflow:hidden; }
-    .screen { display:none; min-height:calc(100vh - 52px); }
+    .main { min-height:100vh; overflow:hidden; }
+    .screen { display:none; min-height:100vh; }
     .screen.active { display:grid; }
 
     /* LOGIN */
     #screenLogin { grid-template-columns:1fr 1fr; animation:screenIn .4s cubic-bezier(.22,1,.36,1) both; }
     @keyframes screenIn { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
 
-    .setup-left { background:#0d0d0d; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:3rem; min-height:calc(100vh - 52px); }
+    .setup-left { background:#0d0d0d; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:3rem; min-height:100vh; }
     .setup-left::before { content:''; position:absolute; bottom:-120px; left:-80px; width:420px; height:420px; border-radius:50%; background:radial-gradient(circle,rgba(232,37,26,.28) 0%,transparent 70%); pointer-events:none; }
     .setup-left::after  { content:''; position:absolute; top:-60px; right:-60px; width:260px; height:260px; border-radius:50%; background:radial-gradient(circle,rgba(232,37,26,.12) 0%,transparent 70%); pointer-events:none; }
     .setup-left-inner { position:relative; z-index:1; max-width:380px; width:100%; }
@@ -85,7 +81,7 @@
     .btn-primary:active { transform:scale(.99); }
 
     /* SELECTOR */
-    #screenSelector { display:none; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 52px); padding:3rem 2rem; background:var(--gray-50); animation:screenIn .4s cubic-bezier(.22,1,.36,1) both; }
+    #screenSelector { display:none; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:3rem 2rem; background:var(--gray-50); animation:screenIn .4s cubic-bezier(.22,1,.36,1) both; }
     #screenSelector.active { display:flex; }
     .selector-title { font-family:var(--font-display); font-size:28px; letter-spacing:2px; color:var(--black); margin-bottom:.5rem; text-align:center; }
     .selector-sub { font-size:13px; color:#64748b; margin-bottom:2.5rem; text-align:center; }
@@ -113,30 +109,21 @@
 <body>
 
   <div id="splash">
-    <img id="splashLogo" src="tridente_solo.png" alt="Croma">
-    <span id="splashText">CROMA</span>
-    <span id="splashSub">App</span>
-  </div>
-
-  <header class="topbar">
-    <div class="brand">
-      <img class="brand-tridente" src="tridente_solo.png" alt="Croma">
-      <span class="brand-logo">CROMA</span>
-      <span class="brand-divider">|</span>
-      <span class="brand-section">App</span>
+    <div class="logo-wrap" style="margin-bottom:4px">
+      <img id="splashLogo" src="logocromapp.png" alt="Croma" style="width:120px;height:auto;filter:brightness(0) invert(1)">
+      <span class="logo-app-badge" style="font-size:13px;bottom:-4px;right:-6px">APP</span>
     </div>
-  </header>
+  </div>
 
   <div class="main">
 
     <div class="screen" id="screenLogin">
       <div class="setup-left">
         <div class="setup-left-inner">
-          <div class="setup-brand">
-            <img class="setup-tridente" src="tridente_solo.png" alt="Croma">
-            <div class="setup-brand-wordmark">
-              <span class="setup-brand-name">CROMA</span>
-              <span class="setup-brand-sub">APP</span>
+          <div class="setup-brand" style="margin-bottom:2rem">
+            <div class="logo-wrap">
+              <img class="setup-tridente" src="logocromapp.png" alt="Croma" style="height:64px;width:auto;filter:brightness(0) invert(1)">
+              <span class="logo-app-badge" style="font-size:13px;letter-spacing:3px">APP</span>
             </div>
           </div>
           <p class="setup-tagline">Sistema de gestión interno para todas las sucursales Croma.</p>
@@ -299,99 +286,3 @@
       document.getElementById('screenLogin').classList.remove('active');
       document.getElementById('screenSelector').classList.add('active');
     }
-
-    async function hacerLogin() {
-      const user    = document.getElementById('inputUser').value.trim().toLowerCase();
-      const pass    = document.getElementById('inputPass').value.trim();
-      const recordar = document.getElementById('inputRecordar').checked;
-      const errEl   = document.getElementById('formError');
-      const btn     = document.getElementById('btnLogin');
-      if (!user||!pass) { errEl.textContent='Completá usuario y contraseña / PIN.'; return; }
-
-      // 1. Intentar con credenciales conocidas (admin / encargados)
-      const cred = CREDS[user];
-      if (cred) {
-        if (cred.pass === pass) {
-          errEl.textContent='';
-          guardarTokenAdmin(user, cred, recordar);
-          redirigirPorRol(cred.rol);
-        } else {
-          errEl.textContent='Contraseña incorrecta.';
-          document.getElementById('inputPass').value='';
-          document.getElementById('inputPass').focus();
-        }
-        return;
-      }
-
-      // 2. No está en CREDS → intentar con PIN de empleado en horarios
-      btn.disabled=true; btn.textContent='Verificando...'; errEl.textContent='';
-      try {
-        const resp = await fetch(HORARIOS_API+'?accion=cargar_usuarios');
-        const json = await resp.json();
-        if (json.ok && json.usuarios) {
-          const emp = json.usuarios.find(u =>
-            u.nombre.trim().toLowerCase() === user && u.pin === pass
-          );
-          if (emp) {
-            guardarTokenEmpleado(user, emp, recordar);
-            btn.disabled=false; btn.textContent='Ingresar';
-            redirigirPorRol('empleado');
-            return;
-          }
-        }
-      } catch(e) {}
-      btn.disabled=false; btn.textContent='Ingresar';
-      errEl.textContent='Usuario o PIN incorrecto.';
-      document.getElementById('inputPass').value='';
-      document.getElementById('inputPass').focus();
-    }
-
-    (function init() {
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          const s = document.getElementById('splash');
-          s.classList.add('hide');
-          setTimeout(function(){ s.remove(); }, 700);
-        }, 1300);
-      });
-
-      const remember    = localStorage.getItem('croma_remember')==='1';
-      const localAuth   = localStorage.getItem('croma_auth')==='1';
-      const sessionAuth = sessionStorage.getItem('croma_auth')==='1';
-
-      if (sessionAuth) { redirigirPorRol(sessionStorage.getItem('croma_rol')||'encargado'); return; }
-      if (remember && localAuth) {
-        const rol  = localStorage.getItem('croma_rol') ||'encargado';
-        const suc  = localStorage.getItem('croma_suc') ||'';
-        const user = localStorage.getItem('croma_user')||'';
-        const empS = localStorage.getItem('croma_horarios_session')||'';
-        sessionStorage.setItem('croma_auth','1');
-        sessionStorage.setItem('croma_rol',rol);
-        sessionStorage.setItem('croma_suc',suc);
-        sessionStorage.setItem('croma_user',user);
-        if (empS) sessionStorage.setItem('croma_horarios_session', empS);
-        redirigirPorRol(rol);
-        return;
-      }
-
-      const savedUser = localStorage.getItem('croma_user');
-      if (savedUser) {
-        document.getElementById('inputUser').value = savedUser;
-        document.getElementById('inputRecordar').checked = true;
-        setTimeout(function(){ document.getElementById('inputPass').focus(); }, 1500);
-      }
-
-      mostrarLogin();
-
-      document.getElementById('btnLogin').addEventListener('click', hacerLogin);
-      document.addEventListener('keydown', function(e) {
-        if (e.key==='Enter') hacerLogin();
-      });
-    })();
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(function(){});
-    }
-  </script>
-</body>
-</html>
