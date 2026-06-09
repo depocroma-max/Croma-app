@@ -182,7 +182,7 @@
           </div>
           <div class="app-card-arrow">→</div>
         </a>
-        <a class="app-card" href="https://depocroma-max.github.io/croma-horarios/">
+        <a class="app-card" id="cardHorarios" href="https://depocroma-max.github.io/croma-horarios/">
           <div class="app-card-icon" style="background:#dbeafe">🗓</div>
           <div>
             <div class="app-card-name">HORARIOS</div>
@@ -290,8 +290,12 @@
       const user = sessionStorage.getItem('croma_user')||localStorage.getItem('croma_user')||'';
       if (user) document.getElementById('selectorSub').textContent =
         'Hola '+user.charAt(0).toUpperCase()+user.slice(1)+', ¿a dónde vas hoy?';
+      // Panel: solo admin y encargados
       const cardPanel = document.getElementById('cardPanel');
       if (cardPanel) cardPanel.style.display = (rol === 'horarios') ? 'none' : '';
+      // Horarios: solo admin y rol horarios (encargados NO tienen acceso admin ahí)
+      const cardHorarios = document.getElementById('cardHorarios');
+      if (cardHorarios) cardHorarios.style.display = (rol === 'encargado') ? 'none' : '';
       document.getElementById('screenLogin').classList.remove('active');
       document.getElementById('screenSelector').classList.add('active');
     }
