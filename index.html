@@ -151,13 +151,13 @@
       <div class="setup-right">
         <div class="setup-form-wrap">
           <h1 class="setup-form-title">Bienvenido</h1>
-          <p class="setup-form-desc">Ingresá con tu usuario y contraseña para acceder al sistema.</p>
+          <p class="setup-form-desc" id="formDesc">Ingresá con tu usuario y contraseña para acceder al sistema.</p>
           <div class="form-field">
             <label>Usuario</label>
             <input type="text" id="inputUser" placeholder="Tu usuario" autocomplete="username">
           </div>
-          <div class="form-field">
-            <label>Contraseña</label>
+          <div class="form-field" id="fieldPass">
+            <label id="labelPass">Contraseña</label>
             <input type="password" id="inputPass" placeholder="••••••••" autocomplete="current-password">
           </div>
           <label class="form-remember">
@@ -197,6 +197,7 @@
   </div>
 
   <script>
+    // ── Credenciales admin / encargados ──────────────────
     const CREDS = {
       'admin':      { pass:'cromacajas', rol:'admin',     suc:null },
       'paseo':      { pass:'paseo2024',  rol:'encargado', suc:'01 PASEO' },
@@ -210,33 +211,73 @@
     };
     const URL_PANEL    = 'https://depocroma-max.github.io/croma-panel/';
     const URL_HORARIOS = 'https://depocroma-max.github.io/croma-horarios/';
+    const HORARIOS_API = 'https://script.google.com/macros/s/AKfycbzEwxqe32k8lzi0_8sj1zAjj7Fd9mT5viE79jRxQsFWWl_MSnEGYspH8tDBOPWicTEF/exec';
 
-    function guardarToken(user, cred, recordar) {
+    // ── Adaptar UI según si el usuario escribe en el campo ──
+    // Cuando el usuario ya existe en CREDS, mostrar "Contraseña"; si no, "PIN"
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('inputUser').addEventListener('input', function() {
+        const u = this.value.trim().toLowerCase();
+        const esConocido = !!CREDS[u];
+        document.getElementById('labelPass').textContent   = esConocido ? 'Contraseña' : 'PIN de horarios';
+        document.getElementById('inputPass').placeholder   = esConocido ? '••••••••'   : '1234';
+        document.getElementById('formDesc').textContent    = esConocido
+          ? 'Ingresá tu contraseña para acceder al sistema.'
+          : 'Ingresá tu PIN de horarios para ver tu perfil.';
+      });
+    });
+
+    function guardarTokenAdmin(user, cred, recordar) {
       sessionStorage.setItem('croma_auth','1');
       sessionStorage.setItem('croma_rol', cred.rol);
       sessionStorage.setItem('croma_suc', cred.suc||'');
       sessionStorage.setItem('croma_user',user);
+      sessionStorage.removeItem('croma_horarios_session');
       if (recordar) {
         localStorage.setItem('croma_remember','1');
         localStorage.setItem('croma_auth','1');
         localStorage.setItem('croma_rol', cred.rol);
         localStorage.setItem('croma_suc', cred.suc||'');
         localStorage.setItem('croma_user',user);
+        localStorage.removeItem('croma_horarios_session');
       } else {
-        ['croma_remember','croma_auth','croma_rol','croma_suc'].forEach(k=>localStorage.removeItem(k));
+        ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(k=>localStorage.removeItem(k));
+        localStorage.setItem('croma_user',user);
+      }
+    }
+
+    function guardarTokenEmpleado(user, empData, recordar) {
+      const sesionStr = JSON.stringify({ usuario: empData });
+      sessionStorage.setItem('croma_auth','1');
+      sessionStorage.setItem('croma_rol','empleado');
+      sessionStorage.setItem('croma_suc', empData.sucursal||'');
+      sessionStorage.setItem('croma_user',user);
+      sessionStorage.setItem('croma_horarios_session', sesionStr);
+      if (recordar) {
+        localStorage.setItem('croma_remember','1');
+        localStorage.setItem('croma_auth','1');
+        localStorage.setItem('croma_rol','empleado');
+        localStorage.setItem('croma_suc', empData.sucursal||'');
+        localStorage.setItem('croma_user',user);
+        localStorage.setItem('croma_horarios_session', sesionStr);
+      } else {
+        ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(k=>localStorage.removeItem(k));
         localStorage.setItem('croma_user',user);
       }
     }
 
     function cerrarSesion() {
       sessionStorage.clear();
-      ['croma_remember','croma_auth','croma_rol','croma_suc'].forEach(k=>localStorage.removeItem(k));
+      ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(k=>localStorage.removeItem(k));
       location.reload();
     }
 
     function redirigirPorRol(rol) {
-      // Todos los roles ven el selector; rol 'horarios' solo ve Horarios
-      mostrarSelector(rol);
+      if (rol === 'empleado') {
+        location.href = URL_HORARIOS;
+      } else {
+        mostrarSelector(rol);
+      }
     }
 
     function mostrarLogin() {
@@ -249,31 +290,56 @@
       const user = sessionStorage.getItem('croma_user')||localStorage.getItem('croma_user')||'';
       if (user) document.getElementById('selectorSub').textContent =
         'Hola '+user.charAt(0).toUpperCase()+user.slice(1)+', ¿a dónde vas hoy?';
-
-      // Mostrar/ocultar card del Panel según rol
       const cardPanel = document.getElementById('cardPanel');
       if (cardPanel) cardPanel.style.display = (rol === 'horarios') ? 'none' : '';
-
       document.getElementById('screenLogin').classList.remove('active');
       document.getElementById('screenSelector').classList.add('active');
     }
 
-    function hacerLogin() {
-      const user     = document.getElementById('inputUser').value.trim().toLowerCase();
-      const pass     = document.getElementById('inputPass').value;
+    async function hacerLogin() {
+      const user    = document.getElementById('inputUser').value.trim().toLowerCase();
+      const pass    = document.getElementById('inputPass').value.trim();
       const recordar = document.getElementById('inputRecordar').checked;
-      const errEl    = document.getElementById('formError');
-      const cred     = CREDS[user];
-      if (!user||!pass) { errEl.textContent='Completá usuario y contraseña.'; return; }
-      if (!cred||cred.pass!==pass) {
-        errEl.textContent='Usuario o contraseña incorrectos.';
-        document.getElementById('inputPass').value='';
-        document.getElementById('inputPass').focus();
+      const errEl   = document.getElementById('formError');
+      const btn     = document.getElementById('btnLogin');
+      if (!user||!pass) { errEl.textContent='Completá usuario y contraseña / PIN.'; return; }
+
+      // 1. Intentar con credenciales conocidas (admin / encargados)
+      const cred = CREDS[user];
+      if (cred) {
+        if (cred.pass === pass) {
+          errEl.textContent='';
+          guardarTokenAdmin(user, cred, recordar);
+          redirigirPorRol(cred.rol);
+        } else {
+          errEl.textContent='Contraseña incorrecta.';
+          document.getElementById('inputPass').value='';
+          document.getElementById('inputPass').focus();
+        }
         return;
       }
-      errEl.textContent='';
-      guardarToken(user,cred,recordar);
-      redirigirPorRol(cred.rol);
+
+      // 2. No está en CREDS → intentar con PIN de empleado en horarios
+      btn.disabled=true; btn.textContent='Verificando...'; errEl.textContent='';
+      try {
+        const resp = await fetch(HORARIOS_API+'?accion=cargar_usuarios');
+        const json = await resp.json();
+        if (json.ok && json.usuarios) {
+          const emp = json.usuarios.find(u =>
+            u.nombre.trim().toLowerCase() === user && u.pin === pass
+          );
+          if (emp) {
+            guardarTokenEmpleado(user, emp, recordar);
+            btn.disabled=false; btn.textContent='Ingresar';
+            redirigirPorRol('empleado');
+            return;
+          }
+        }
+      } catch(e) {}
+      btn.disabled=false; btn.textContent='Ingresar';
+      errEl.textContent='Usuario o PIN incorrecto.';
+      document.getElementById('inputPass').value='';
+      document.getElementById('inputPass').focus();
     }
 
     (function init() {
@@ -291,13 +357,15 @@
 
       if (sessionAuth) { redirigirPorRol(sessionStorage.getItem('croma_rol')||'encargado'); return; }
       if (remember && localAuth) {
-        const rol=localStorage.getItem('croma_rol')||'encargado';
-        const suc=localStorage.getItem('croma_suc')||'';
-        const user=localStorage.getItem('croma_user')||'';
+        const rol  = localStorage.getItem('croma_rol') ||'encargado';
+        const suc  = localStorage.getItem('croma_suc') ||'';
+        const user = localStorage.getItem('croma_user')||'';
+        const empS = localStorage.getItem('croma_horarios_session')||'';
         sessionStorage.setItem('croma_auth','1');
         sessionStorage.setItem('croma_rol',rol);
         sessionStorage.setItem('croma_suc',suc);
         sessionStorage.setItem('croma_user',user);
+        if (empS) sessionStorage.setItem('croma_horarios_session', empS);
         redirigirPorRol(rol);
         return;
       }
