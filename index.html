@@ -174,7 +174,7 @@
       <p class="selector-title">¿A dónde vas hoy?</p>
       <p class="selector-sub" id="selectorSub">Seleccioná la sección que querés abrir.</p>
       <div class="app-cards">
-        <a class="app-card" href="https://depocroma-max.github.io/croma-panel/">
+        <a class="app-card" id="cardPanel" href="https://depocroma-max.github.io/croma-panel/">
           <div class="app-card-icon" style="background:#fee2e2">📦</div>
           <div>
             <div class="app-card-name">PANEL</div>
@@ -235,11 +235,8 @@
     }
 
     function redirigirPorRol(rol) {
-      if (rol === 'admin') {
-        mostrarSelector();
-      } else {
-        location.href = URL_HORARIOS;
-      }
+      // Todos los roles ven el selector; rol 'horarios' solo ve Horarios
+      mostrarSelector(rol);
     }
 
     function mostrarLogin() {
@@ -247,10 +244,16 @@
       document.getElementById('screenSelector').classList.remove('active');
     }
 
-    function mostrarSelector() {
+    function mostrarSelector(rol) {
+      if (!rol) rol = sessionStorage.getItem('croma_rol') || localStorage.getItem('croma_rol') || 'encargado';
       const user = sessionStorage.getItem('croma_user')||localStorage.getItem('croma_user')||'';
       if (user) document.getElementById('selectorSub').textContent =
         'Hola '+user.charAt(0).toUpperCase()+user.slice(1)+', ¿a dónde vas hoy?';
+
+      // Mostrar/ocultar card del Panel según rol
+      const cardPanel = document.getElementById('cardPanel');
+      if (cardPanel) cardPanel.style.display = (rol === 'horarios') ? 'none' : '';
+
       document.getElementById('screenLogin').classList.remove('active');
       document.getElementById('screenSelector').classList.add('active');
     }
