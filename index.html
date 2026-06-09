@@ -92,10 +92,20 @@
     .selector-logout:hover { color:var(--accent); }
 
     @media (max-width:760px) {
-      #screenLogin { grid-template-columns:1fr; }
-      .setup-left { min-height:auto; padding:2rem 1.5rem; }
+      body { overflow:auto; }
+      .main { overflow:auto; }
+      .screen { min-height:100vh; }
+      #screenLogin { grid-template-columns:1fr; grid-template-rows:auto 1fr; min-height:100vh; }
+      .setup-left { min-height:auto; padding:1.5rem 1.5rem 1.25rem; }
+      .setup-brand { margin-bottom:.75rem; }
+      .setup-tagline { margin-bottom:0; font-size:13px; }
       .feature-list { display:none; }
-      .setup-right { padding:2rem 1.5rem; }
+      .setup-right { padding:1.75rem 1.5rem; align-items:flex-start; }
+      .setup-form-wrap { max-width:100%; }
+      .setup-form-title { font-size:26px; }
+      .setup-form-desc { margin-bottom:1.25rem; }
+      .form-field { margin-bottom:10px; }
+      .form-field input { height:42px; }
       .app-cards { grid-template-columns:1fr; max-width:360px; }
     }
   </style>
