@@ -27,7 +27,6 @@
     /* SPLASH */
     #splash { position:fixed; inset:0; background:#0d0d0d; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; z-index:99999; transition:opacity .6s ease; }
     #splash.hide { opacity:0; pointer-events:none; }
-    #splashLogo { animation:splashIn .65s cubic-bezier(.39,.575,.565,1) both; }
     #splash .logo-wrap { animation:splashIn .65s cubic-bezier(.39,.575,.565,1) both; }
     @keyframes splashIn { 0%{opacity:0;transform:scale(.85)} 100%{opacity:1;transform:scale(1)} }
 
@@ -50,10 +49,6 @@
     .setup-left::after  { content:''; position:absolute; top:-60px; right:-60px; width:260px; height:260px; border-radius:50%; background:radial-gradient(circle,rgba(232,37,26,.12) 0%,transparent 70%); pointer-events:none; }
     .setup-left-inner { position:relative; z-index:1; max-width:380px; width:100%; }
     .setup-brand { display:flex; align-items:center; gap:16px; margin-bottom:2rem; }
-    .setup-tridente { height:52px; width:auto; filter:brightness(0) invert(1); flex-shrink:0; }
-    .setup-brand-wordmark { display:flex; flex-direction:column; line-height:1; }
-    .setup-brand-name { font-family:var(--font-display); font-size:48px; letter-spacing:4px; color:#fff; }
-    .setup-brand-sub  { font-family:var(--font-display); font-size:18px; letter-spacing:6px; color:rgba(255,255,255,.4); margin-top:-4px; }
     .setup-tagline { font-size:14px; color:rgba(255,255,255,.55); line-height:1.6; margin-bottom:2.5rem; max-width:320px; }
     .feature-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:12px; }
     .feature-list li { display:flex; align-items:center; gap:12px; font-size:12px; font-weight:600; letter-spacing:.06em; color:rgba(255,255,255,.45); text-transform:uppercase; }
@@ -73,12 +68,12 @@
     .form-remember { display:flex; align-items:center; gap:8px; margin-bottom:20px; cursor:pointer; user-select:none; }
     .form-remember input[type=checkbox] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; flex-shrink:0; }
     .form-remember span { font-size:12px; color:#64748b; }
-
     .form-error { font-size:12px; color:#dc2626; min-height:18px; margin-bottom:8px; }
 
     .btn-primary { width:100%; padding:13px; background:#0d0d0d; color:#fff; border:none; border-radius:12px; font-family:var(--font-body); font-size:14px; font-weight:600; cursor:pointer; letter-spacing:.2px; transition:background .15s,transform .1s; }
     .btn-primary:hover { background:#1a1a1a; }
     .btn-primary:active { transform:scale(.99); }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
 
     /* SELECTOR */
     #screenSelector { display:none; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:3rem 2rem; background:var(--gray-50); animation:screenIn .4s cubic-bezier(.22,1,.36,1) both; }
@@ -99,7 +94,6 @@
     @media (max-width:760px) {
       #screenLogin { grid-template-columns:1fr; }
       .setup-left { min-height:auto; padding:2rem 1.5rem; }
-      .setup-brand-name { font-size:36px; }
       .feature-list { display:none; }
       .setup-right { padding:2rem 1.5rem; }
       .app-cards { grid-template-columns:1fr; max-width:360px; }
@@ -109,9 +103,9 @@
 <body>
 
   <div id="splash">
-    <div class="logo-wrap" style="margin-bottom:4px">
-      <img id="splashLogo" src="logocromapp.png" alt="Croma" style="width:120px;height:auto;filter:brightness(0) invert(1)">
-      <span class="logo-app-badge" style="font-size:13px;bottom:-4px;right:-6px">APP</span>
+    <div class="logo-wrap">
+      <img src="logocromapp.png" alt="Croma" style="width:140px;height:auto">
+      <span class="logo-app-badge" style="font-size:14px;bottom:-4px;right:-6px">APP</span>
     </div>
   </div>
 
@@ -120,10 +114,10 @@
     <div class="screen" id="screenLogin">
       <div class="setup-left">
         <div class="setup-left-inner">
-          <div class="setup-brand" style="margin-bottom:2rem">
+          <div class="setup-brand">
             <div class="logo-wrap">
-              <img class="setup-tridente" src="logocromapp.png" alt="Croma" style="height:64px;width:auto;filter:brightness(0) invert(1)">
-              <span class="logo-app-badge" style="font-size:13px;letter-spacing:3px">APP</span>
+              <img src="logocromapp.png" alt="Croma" style="height:64px;width:auto">
+              <span class="logo-app-badge" style="font-size:13px;bottom:-2px;right:-6px">APP</span>
             </div>
           </div>
           <p class="setup-tagline">Sistema de gestión interno para todas las sucursales Croma.</p>
@@ -159,7 +153,7 @@
 
     <div id="screenSelector">
       <p class="selector-title">¿A dónde vas hoy?</p>
-      <p class="selector-sub" id="selectorSub">Seleccioná la sección que querés abrir.</p>
+      <p class="selector-sub" id="selectorSub">Selecioná la sección que querés abrir.</p>
       <div class="app-cards">
         <a class="app-card" id="cardPanel" href="https://depocroma-max.github.io/croma-panel/">
           <div class="app-card-icon" style="background:#fee2e2">📦</div>
@@ -184,8 +178,7 @@
   </div>
 
   <script>
-    // ── Credenciales admin / encargados ──────────────────
-    const CREDS = {
+    var CREDS = {
       'admin':      { pass:'cromacajas', rol:'admin',     suc:null },
       'paseo':      { pass:'paseo2024',  rol:'encargado', suc:'01 PASEO' },
       'wave':       { pass:'wave2024',   rol:'encargado', suc:'05 WAVE' },
@@ -196,66 +189,133 @@
       'agus':       { pass:'agus2024',   rol:'horarios',  suc:null },
       'depo':       { pass:'depo2024',   rol:'encargado', suc:'DEPO' },
     };
-    const URL_PANEL    = 'https://depocroma-max.github.io/croma-panel/';
-    const URL_HORARIOS = 'https://depocroma-max.github.io/croma-horarios/';
-    const HORARIOS_API = 'https://script.google.com/macros/s/AKfycbzEwxqe32k8lzi0_8sj1zAjj7Fd9mT5viE79jRxQsFWWl_MSnEGYspH8tDBOPWicTEF/exec';
+    var URL_PANEL    = 'https://depocroma-max.github.io/croma-panel/';
+    var URL_HORARIOS = 'https://depocroma-max.github.io/croma-horarios/';
+    var HORARIOS_API = 'https://script.google.com/macros/s/AKfycbzEwxqe32k8lzi0_8sj1zAjj7Fd9mT5viE79jRxQsFWWl_MSnEGYspH8tDBOPWicTEF/exec';
 
-    // ── Adaptar UI según si el usuario escribe en el campo ──
-    // Cuando el usuario ya existe en CREDS, mostrar "Contraseña"; si no, "PIN"
-    document.addEventListener('DOMContentLoaded', function() {
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        var splash = document.getElementById('splash');
+        splash.classList.add('hide');
+        setTimeout(function() { splash.style.display = 'none'; }, 600);
+      }, 1200);
+
+      var authSession = sessionStorage.getItem('croma_auth') === '1';
+      var authLocal   = localStorage.getItem('croma_auth') === '1' && localStorage.getItem('croma_remember') === '1';
+      if (authSession || authLocal) {
+        var store = authSession ? sessionStorage : localStorage;
+        var rol = store.getItem('croma_rol') || 'admin';
+        if (rol === 'empleado') {
+          location.href = URL_HORARIOS;
+        } else {
+          mostrarSelector(rol);
+        }
+      } else {
+        mostrarLogin();
+      }
+
       document.getElementById('inputUser').addEventListener('input', function() {
-        const u = this.value.trim().toLowerCase();
-        const esConocido = !!CREDS[u];
-        document.getElementById('labelPass').textContent   = esConocido ? 'Contraseña' : 'PIN de horarios';
-        document.getElementById('inputPass').placeholder   = esConocido ? '••••••••'   : '1234';
-        document.getElementById('formDesc').textContent    = esConocido
+        var u = this.value.trim().toLowerCase();
+        var esConocido = !!CREDS[u];
+        document.getElementById('labelPass').textContent = esConocido ? 'Contraseña' : 'PIN de horarios';
+        document.getElementById('inputPass').placeholder = esConocido ? '••••••••' : '1234';
+        document.getElementById('formDesc').textContent  = esConocido
           ? 'Ingresá tu contraseña para acceder al sistema.'
           : 'Ingresá tu PIN de horarios para ver tu perfil.';
       });
+
+      document.getElementById('btnLogin').addEventListener('click', hacerLogin);
+      document.getElementById('inputPass').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') hacerLogin();
+      });
+      document.getElementById('inputUser').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('inputPass').focus();
+      });
     });
+
+    async function hacerLogin() {
+      var user     = document.getElementById('inputUser').value.trim().toLowerCase();
+      var pass     = document.getElementById('inputPass').value.trim();
+      var recordar = document.getElementById('inputRecordar').checked;
+      var errEl    = document.getElementById('formError');
+      errEl.textContent = '';
+      if (!user || !pass) { errEl.textContent = 'Completá usuario y contraseña.'; return; }
+      var btn = document.getElementById('btnLogin');
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
+      try {
+        var cred = CREDS[user];
+        if (cred) {
+          if (cred.pass === pass) {
+            guardarTokenAdmin(user, cred, recordar);
+            redirigirPorRol(cred.rol);
+          } else {
+            errEl.textContent = 'Contraseña incorrecta.';
+          }
+          return;
+        }
+        var resp = await fetch(HORARIOS_API + '?accion=cargar_usuarios');
+        if (!resp.ok) throw new Error('sin conexion');
+        var json = await resp.json();
+        var emp  = (json.usuarios || []).find(function(u) {
+          return u.nombre && u.nombre.trim().toLowerCase() === user && String(u.pin) === pass;
+        });
+        if (emp) {
+          guardarTokenEmpleado(user, emp, recordar);
+          redirigirPorRol('empleado');
+        } else {
+          errEl.textContent = 'Usuario o PIN incorrecto.';
+        }
+      } catch(err) {
+        errEl.textContent = 'Error de conexión. Intentá de nuevo.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Ingresar';
+      }
+    }
 
     function guardarTokenAdmin(user, cred, recordar) {
       sessionStorage.setItem('croma_auth','1');
       sessionStorage.setItem('croma_rol', cred.rol);
       sessionStorage.setItem('croma_suc', cred.suc||'');
-      sessionStorage.setItem('croma_user',user);
+      sessionStorage.setItem('croma_user', user);
       sessionStorage.removeItem('croma_horarios_session');
       if (recordar) {
         localStorage.setItem('croma_remember','1');
         localStorage.setItem('croma_auth','1');
         localStorage.setItem('croma_rol', cred.rol);
         localStorage.setItem('croma_suc', cred.suc||'');
-        localStorage.setItem('croma_user',user);
+        localStorage.setItem('croma_user', user);
         localStorage.removeItem('croma_horarios_session');
       } else {
-        ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(k=>localStorage.removeItem(k));
-        localStorage.setItem('croma_user',user);
+        ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(function(k){ localStorage.removeItem(k); });
+        localStorage.setItem('croma_user', user);
       }
     }
 
     function guardarTokenEmpleado(user, empData, recordar) {
-      const sesionStr = JSON.stringify({ usuario: empData });
+      var sesionStr = JSON.stringify({ usuario: empData });
       sessionStorage.setItem('croma_auth','1');
       sessionStorage.setItem('croma_rol','empleado');
       sessionStorage.setItem('croma_suc', empData.sucursal||'');
-      sessionStorage.setItem('croma_user',user);
+      sessionStorage.setItem('croma_user', user);
       sessionStorage.setItem('croma_horarios_session', sesionStr);
       if (recordar) {
         localStorage.setItem('croma_remember','1');
         localStorage.setItem('croma_auth','1');
         localStorage.setItem('croma_rol','empleado');
         localStorage.setItem('croma_suc', empData.sucursal||'');
-        localStorage.setItem('croma_user',user);
+        localStorage.setItem('croma_user', user);
         localStorage.setItem('croma_horarios_session', sesionStr);
       } else {
-        ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(k=>localStorage.removeItem(k));
-        localStorage.setItem('croma_user',user);
+        ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(function(k){ localStorage.removeItem(k); });
+        localStorage.setItem('croma_user', user);
       }
     }
 
     function cerrarSesion() {
       sessionStorage.clear();
-      ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(k=>localStorage.removeItem(k));
+      ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(function(k){ localStorage.removeItem(k); });
       location.reload();
     }
 
@@ -274,15 +334,20 @@
 
     function mostrarSelector(rol) {
       if (!rol) rol = sessionStorage.getItem('croma_rol') || localStorage.getItem('croma_rol') || 'encargado';
-      const user = sessionStorage.getItem('croma_user')||localStorage.getItem('croma_user')||'';
+      var user = sessionStorage.getItem('croma_user') || localStorage.getItem('croma_user') || '';
       if (user) document.getElementById('selectorSub').textContent =
-        'Hola '+user.charAt(0).toUpperCase()+user.slice(1)+', ¿a dónde vas hoy?';
-      // Panel: solo admin y encargados
-      const cardPanel = document.getElementById('cardPanel');
+        'Hola ' + user.charAt(0).toUpperCase() + user.slice(1) + ', ¿a dónde vas hoy?';
+      var cardPanel = document.getElementById('cardPanel');
       if (cardPanel) cardPanel.style.display = (rol === 'horarios') ? 'none' : '';
-      // Horarios: solo admin y rol horarios (encargados NO tienen acceso admin ahí)
-      const cardHorarios = document.getElementById('cardHorarios');
+      var cardHorarios = document.getElementById('cardHorarios');
       if (cardHorarios) cardHorarios.style.display = (rol === 'encargado') ? 'none' : '';
       document.getElementById('screenLogin').classList.remove('active');
       document.getElementById('screenSelector').classList.add('active');
     }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
+</body>
+</html>
