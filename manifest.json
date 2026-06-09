@@ -3,7 +3,7 @@
   "short_name": "Croma",
   "description": "Sistema de gestión interno Croma",
   "start_url": "./index.html",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#0d0d0d",
   "theme_color": "#0d0d0d",
   "orientation": "any",
