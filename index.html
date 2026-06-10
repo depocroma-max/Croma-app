@@ -196,7 +196,7 @@
       'perito':     { pass:'perito2024', rol:'encargado', suc:'10 PERITO MORENO' },
       'centenario': { pass:'cente2024',  rol:'encargado', suc:'12 CENTENARIO' },
       'roca':       { pass:'roca2024',   rol:'encargado', suc:'14 ROCA' },
-      'agus':       { pass:'agus2024',   rol:'horarios',  suc:null },
+      'agus':       { pass:'agus2024',   rol:'operador',  suc:null },
       'depo':       { pass:'depo2024',   rol:'encargado', suc:'DEPO' },
     };
     var URL_PANEL    = 'https://depocroma-max.github.io/croma-panel/';
@@ -350,7 +350,7 @@
       var cardPanel = document.getElementById('cardPanel');
       if (cardPanel) cardPanel.style.display = (rol === 'horarios') ? 'none' : '';
       var cardHorarios = document.getElementById('cardHorarios');
-      if (cardHorarios) cardHorarios.style.display = (rol === 'encargado') ? 'none' : '';
+      if (cardHorarios) cardHorarios.style.display = (rol === 'encargado' || rol === 'operador') ? 'none' : '';
       document.getElementById('screenLogin').classList.remove('active');
       document.getElementById('screenSelector').classList.add('active');
     }
