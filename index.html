@@ -44,36 +44,50 @@
     #screenLogin { grid-template-columns:1fr 1fr; animation:screenIn .4s cubic-bezier(.22,1,.36,1) both; }
     @keyframes screenIn { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
 
+    /* LEFT PANEL */
     .setup-left { background:#0d0d0d; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:3rem; min-height:100vh; }
-    .setup-left::before { content:''; position:absolute; bottom:-120px; left:-80px; width:420px; height:420px; border-radius:50%; background:radial-gradient(circle,rgba(232,37,26,.28) 0%,transparent 70%); pointer-events:none; }
-    .setup-left::after  { content:''; position:absolute; top:-60px; right:-60px; width:260px; height:260px; border-radius:50%; background:radial-gradient(circle,rgba(232,37,26,.12) 0%,transparent 70%); pointer-events:none; }
-    .setup-left-inner { position:relative; z-index:1; max-width:380px; width:100%; }
-    .setup-brand { display:flex; align-items:center; gap:16px; margin-bottom:2rem; }
-    .setup-tagline { font-size:14px; color:rgba(255,255,255,.55); line-height:1.6; margin-bottom:2.5rem; max-width:320px; }
-    .feature-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:12px; }
-    .feature-list li { display:flex; align-items:center; gap:12px; font-size:12px; font-weight:600; letter-spacing:.06em; color:rgba(255,255,255,.45); text-transform:uppercase; }
-    .feature-dot { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:14px; }
+    .setup-left-inner { position:relative; z-index:1; display:flex; flex-direction:column; align-items:flex-start; gap:1.5rem; transition: transform .9s cubic-bezier(.22,1,.36,1); }
+    .setup-tagline { font-family:var(--font-display); font-size:28px; letter-spacing:3px; color:rgba(255,255,255,.80); line-height:1.25; max-width:280px; }
 
-    .setup-right { background:#fafaf8; display:flex; align-items:center; justify-content:center; padding:3rem 2.5rem; overflow-y:auto; }
-    .setup-form-wrap { max-width:400px; width:100%; }
-    .setup-form-title { font-family:var(--font-display); font-size:32px; letter-spacing:2px; color:#0d0d0d; margin:0 0 .4rem; }
-    .setup-form-desc { font-size:13px; color:#64748b; line-height:1.6; margin-bottom:2rem; }
+    /* LOGIN INTRO ANIMATION */
+    .setup-right { transition: opacity .65s .35s ease, transform .65s .35s cubic-bezier(.22,1,.36,1); }
+    #screenLogin.login-intro .setup-left-inner { transform: translateX(50%) scale(3.5); }
+    #screenLogin.login-intro .setup-right { opacity: 0; transform: translateX(60px); pointer-events: none; }
 
+    /* RIGHT PANEL */
+    .setup-right { background:#f1f1ef; display:flex; align-items:center; justify-content:center; padding:3rem 2.5rem; overflow-y:auto; }
+    .login-card { background:#fff; border-radius:24px; box-shadow:0 8px 40px rgba(0,0,0,.10); padding:2.5rem 2.25rem; max-width:400px; width:100%; display:flex; flex-direction:column; }
+    .login-card-title { font-family:var(--font-display); font-size:34px; letter-spacing:2px; color:#0d0d0d; margin:0 0 .3rem; }
+    .login-card-sub { font-size:13px; color:#94a3b8; line-height:1.6; margin-bottom:1.75rem; }
+
+    /* FIELDS WITH ICONS */
     .form-field { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
     .form-field label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8; }
-    .form-field input { height:44px; padding:0 14px; border:1px solid #e2e8f0; border-radius:10px; font-family:var(--font-body); font-size:14px; color:#0d0d0d; background:#fff; transition:border .15s,box-shadow .15s; }
-    .form-field input:focus { outline:none; border-color:#94a3b8; box-shadow:0 0 0 3px rgba(100,116,139,.1); }
-    .form-field input::placeholder { color:#cbd5e1; }
+    .field-wrap { position:relative; display:flex; align-items:center; }
+    .field-icon { position:absolute; left:12px; width:20px; height:20px; object-fit:contain; pointer-events:none; filter: brightness(0) saturate(100%) invert(25%); }
+    .field-wrap input { width:100%; height:46px; padding:0 14px 0 38px; border:1.5px solid #e8e8e4; border-radius:12px; font-family:var(--font-body); font-size:14px; color:#0d0d0d; background:#fafaf8; transition:border .15s,box-shadow .15s; }
+    .field-wrap input:focus { outline:none; border-color:#0d0d0d; background:#fff; box-shadow:0 0 0 3px rgba(13,13,13,.06); }
+    .field-wrap input::placeholder { color:#cbd5e1; }
+    .field-eye { position:absolute; right:12px; background:none; border:none; cursor:pointer; color:#94a3b8; font-size:16px; padding:4px; line-height:1; transition:color .15s; }
+    .field-eye:hover { color:#0d0d0d; }
 
+    /* REMEMBER */
     .form-remember { display:flex; align-items:center; gap:8px; margin-bottom:20px; cursor:pointer; user-select:none; }
     .form-remember input[type=checkbox] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; flex-shrink:0; }
     .form-remember span { font-size:12px; color:#64748b; }
     .form-error { font-size:12px; color:#dc2626; min-height:18px; margin-bottom:8px; }
 
-    .btn-primary { width:100%; padding:13px; background:#0d0d0d; color:#fff; border:none; border-radius:12px; font-family:var(--font-body); font-size:14px; font-weight:600; cursor:pointer; letter-spacing:.2px; transition:background .15s,transform .1s; }
-    .btn-primary:hover { background:#1a1a1a; }
+    /* BUTTONS */
+    .btn-primary { width:100%; padding:14px; background:var(--accent); color:#fff; border:none; border-radius:12px; font-family:var(--font-body); font-size:14px; font-weight:600; cursor:pointer; letter-spacing:.3px; transition:background .15s,transform .1s,box-shadow .15s; box-shadow:0 4px 14px rgba(232,37,26,.30); }
+    .btn-primary:hover { background:#d01f15; box-shadow:0 6px 18px rgba(232,37,26,.38); }
     .btn-primary:active { transform:scale(.99); }
-    .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; box-shadow:none; }
+    .login-divider { display:flex; align-items:center; gap:10px; margin:16px 0; }
+    .login-divider::before,.login-divider::after { content:''; flex:1; height:1px; background:#e8e8e4; }
+    .login-divider span { font-size:11px; color:#c0c0ba; }
+    .btn-help { width:100%; padding:12px; background:transparent; color:#64748b; border:1.5px solid #e8e8e4; border-radius:12px; font-family:var(--font-body); font-size:13px; font-weight:500; cursor:pointer; transition:border-color .15s,color .15s; }
+    .btn-help:hover { border-color:#0d0d0d; color:#0d0d0d; }
+    .login-footer { margin-top:1.5rem; text-align:center; font-size:11px; color:#c0c0ba; }
 
     /* SELECTOR */
     #screenSelector { display:none; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:3rem 2rem; background:var(--gray-50); animation:screenIn .4s cubic-bezier(.22,1,.36,1) both; }
@@ -96,16 +110,16 @@
       .main { overflow:auto; }
       .screen { min-height:100vh; }
       #screenLogin { grid-template-columns:1fr; grid-template-rows:auto 1fr; min-height:100vh; }
-      .setup-left { min-height:auto; padding:1.5rem 1.5rem 1.25rem; }
-      .setup-brand { margin-bottom:.75rem; }
-      .setup-tagline { margin-bottom:0; font-size:13px; }
-      .feature-list { display:none; }
-      .setup-right { padding:1.75rem 1.5rem; align-items:flex-start; }
-      .setup-form-wrap { max-width:100%; }
-      .setup-form-title { font-size:26px; }
-      .setup-form-desc { margin-bottom:1.25rem; }
+      #screenLogin.login-intro .setup-left-inner { transform: none; }
+      #screenLogin.login-intro .setup-right { opacity:1; transform:none; }
+      .setup-left { min-height:auto; padding:2.5rem 1.75rem; align-items:center; justify-content:center; }
+      .setup-left-inner { align-items:center; }
+      .setup-left-inner .logo-wrap img { height:80px !important; width:auto !important; }
+      .setup-left-inner .logo-app-badge { font-size:14px !important; }
+      .setup-right { padding:2rem 1.5rem; background:#f1f1ef; align-items:flex-start; }
+      .login-card { box-shadow:none; border-radius:0; padding:0; background:transparent; max-width:100%; }
+      .login-card-title { font-size:28px; }
       .form-field { margin-bottom:10px; }
-      .form-field input { height:42px; }
       .app-cards { grid-template-columns:1fr; max-width:360px; }
     }
   </style>
@@ -114,7 +128,7 @@
 
   <div id="splash">
     <div class="logo-wrap">
-      <img src="logocromapp.png" alt="Croma" style="width:140px;height:auto">
+      <img src="logocromapp.png" alt="Croma" style="width:280px;height:auto">
       <span class="logo-app-badge" style="font-size:14px;bottom:-4px;right:-6px">APP</span>
     </div>
   </div>
@@ -124,32 +138,30 @@
     <div class="screen" id="screenLogin">
       <div class="setup-left">
         <div class="setup-left-inner">
-          <div class="setup-brand">
-            <div class="logo-wrap">
-              <img src="logocromapp.png" alt="Croma" style="height:64px;width:auto">
-              <span class="logo-app-badge" style="font-size:13px;bottom:-2px;right:-6px">APP</span>
-            </div>
+          <div class="logo-wrap">
+            <img src="logocromapp.png" alt="Croma App" style="height:160px;width:auto">
+            <span class="logo-app-badge" style="font-size:22px;bottom:-4px;right:-10px">APP</span>
           </div>
-          <p class="setup-tagline">Sistema de gestión interno para todas las sucursales Croma.</p>
-          <ul class="feature-list">
-            <li><div class="feature-dot" style="background:rgba(232,37,26,.15)">📦</div>Pedidos y rotación</li>
-            <li><div class="feature-dot" style="background:rgba(24,95,165,.15)">🗓</div>Horarios semanales</li>
-            <li><div class="feature-dot" style="background:rgba(15,110,86,.15)">📊</div>Cajas de locales</li>
-            <li><div class="feature-dot" style="background:rgba(83,74,183,.15)">🎟</div>Venta de entradas</li>
-          </ul>
         </div>
       </div>
       <div class="setup-right">
-        <div class="setup-form-wrap">
-          <h1 class="setup-form-title">Bienvenido</h1>
-          <p class="setup-form-desc" id="formDesc">Ingresá con tu usuario y contraseña para acceder al sistema.</p>
+        <div class="login-card">
+          <h1 class="login-card-title">¡Bienvenido!</h1>
+          <p class="login-card-sub" id="formDesc">Ingresá con tu usuario y contraseña para acceder al sistema.</p>
           <div class="form-field">
             <label>Usuario</label>
-            <input type="text" id="inputUser" placeholder="Tu usuario" autocomplete="username">
+            <div class="field-wrap">
+              <img class="field-icon" src="avatar.png" alt="">
+              <input type="text" id="inputUser" placeholder="Tu usuario" autocomplete="username">
+            </div>
           </div>
           <div class="form-field" id="fieldPass">
             <label id="labelPass">Contraseña</label>
-            <input type="password" id="inputPass" placeholder="••••••••" autocomplete="current-password">
+            <div class="field-wrap">
+              <img class="field-icon" src="lock.png" alt="">
+              <input type="password" id="inputPass" placeholder="••••••••" autocomplete="current-password">
+              <button class="field-eye" id="btnTogglePass" type="button" tabindex="-1" onclick="togglePass()">&#128065;</button>
+            </div>
           </div>
           <label class="form-remember">
             <input type="checkbox" id="inputRecordar">
@@ -157,6 +169,9 @@
           </label>
           <div class="form-error" id="formError"></div>
           <button class="btn-primary" id="btnLogin">Ingresar</button>
+          <div class="login-divider"><span>o</span></div>
+          <button class="btn-help" type="button" onclick="window.open('mailto:sistemas@croma.com.ar','_blank')">¿Necesitás ayuda?</button>
+          <p class="login-footer">© 2024 Croma. Todos los derechos reservados.</p>
         </div>
       </div>
     </div>
@@ -242,6 +257,13 @@
         if (e.key === 'Enter') document.getElementById('inputPass').focus();
       });
     });
+
+    function togglePass() {
+      var inp = document.getElementById('inputPass');
+      var btn = document.getElementById('btnTogglePass');
+      if (inp.type === 'password') { inp.type = 'text'; btn.style.color = '#0d0d0d'; }
+      else { inp.type = 'password'; btn.style.color = ''; }
+    }
 
     async function hacerLogin() {
       var user     = document.getElementById('inputUser').value.trim().toLowerCase();
@@ -338,8 +360,12 @@
     }
 
     function mostrarLogin() {
-      document.getElementById('screenLogin').classList.add('active');
+      var s = document.getElementById('screenLogin');
       document.getElementById('screenSelector').classList.remove('active');
+      s.classList.add('login-intro', 'active');
+      setTimeout(function() {
+        s.classList.remove('login-intro');
+      }, 1250);
     }
 
     function mostrarSelector(rol) {
