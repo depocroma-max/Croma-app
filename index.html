@@ -461,7 +461,8 @@
           fetch(HORARIOS_API + '?accion=get_anuncios').then(function(r){ return r.json(); }),
           fetch(HORARIOS_API + '?accion=perfiles').then(function(r){ return r.json(); }).catch(function(){ return {}; })
         ]);
-        var perfiles = perfilesResp.perfiles || perfilesResp || {};
+        // La API devuelve { ok, empleados: [{nombre, foto_url, ...}] }
+        var perfiles = perfilesResp.empleados || [];
         renderDepo(horariosResp.data || [], perfiles);
         renderAnuncios(anunciosResp.anuncios || []);
       } catch(e) {
@@ -510,12 +511,15 @@
           return empMatch && diaMatch && mesMatch && anioMatch;
         });
 
-        // Buscar foto en perfiles (clave puede ser el nombre)
+        // Buscar foto — empleados es array con {nombre: "41 ROCIO  SANCHEZ", foto_url: ...}
         var fotoUrl = '';
-        if (perfiles) {
-          var keys = Object.keys(perfiles);
-          var pk = keys.find(function(k){ return k.toUpperCase().includes(apellido); });
-          if (pk && perfiles[pk] && perfiles[pk].foto_url) fotoUrl = perfiles[pk].foto_url;
+        if (perfiles && perfiles.length) {
+          var perfil = perfiles.find(function(p) {
+            var pn = String(p.nombre || '').trim().toUpperCase();
+            // el nombre tiene legajo adelante: "41 ROCIO  SANCHEZ" — matchear por palabras del nombre
+            return nombre.split(' ').filter(function(w){ return w.length > 2; }).every(function(w){ return pn.includes(w); });
+          });
+          if (perfil) fotoUrl = perfil.foto_url || '';
         }
 
         var iniciales = nombre.split(' ').slice(0,2).map(function(p){ return p[0]; }).join('');
