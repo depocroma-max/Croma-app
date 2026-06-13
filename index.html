@@ -223,6 +223,18 @@
         <!-- Saludo -->
         <div style="font-family:var(--font-display);font-size:26px;letter-spacing:2px;color:var(--black);margin-bottom:1.5rem;" id="jefeGreeting">Hola, Tincho</div>
 
+        <!-- Anuncios -->
+        <div style="background:#fff;border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#fef9ec;display:flex;align-items:center;justify-content:center;font-size:18px;">📣</div>
+            <div>
+              <div style="font-family:var(--font-display);font-size:17px;letter-spacing:1.5px;color:var(--black)">ANUNCIOS</div>
+              <div style="font-size:11px;color:#94a3b8">Últimas novedades enviadas</div>
+            </div>
+          </div>
+          <div id="anunciosList"><div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div></div>
+        </div>
+
         <!-- Depósito hoy -->
         <div style="background:#fff;border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;">
@@ -245,18 +257,6 @@
             </div>
           </div>
           <div id="oficinaList"><div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div></div>
-        </div>
-
-        <!-- Anuncios -->
-        <div style="background:#fff;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;">
-            <div style="width:36px;height:36px;border-radius:10px;background:#fef9ec;display:flex;align-items:center;justify-content:center;font-size:18px;">📣</div>
-            <div>
-              <div style="font-family:var(--font-display);font-size:17px;letter-spacing:1.5px;color:var(--black)">ANUNCIOS</div>
-              <div style="font-size:11px;color:#94a3b8">Últimas novedades enviadas</div>
-            </div>
-          </div>
-          <div id="anunciosList"><div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div></div>
         </div>
 
       </div>
@@ -471,15 +471,21 @@
       document.getElementById('depoList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
       document.getElementById('anunciosList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
       try {
-        var [horariosResp, anunciosResp, perfilesResp, usuariosResp] = await Promise.all([
+        var [horariosResp, anunciosResp, perfilesResp, usuariosResp, certsResp] = await Promise.all([
           fetch(HORARIOS_API + '?accion=horarios').then(function(r){ return r.json(); }),
           fetch(HORARIOS_API + '?accion=get_anuncios').then(function(r){ return r.json(); }),
           fetch(HORARIOS_API + '?accion=perfiles').then(function(r){ return r.json(); }).catch(function(){ return {}; }),
-          fetch(HORARIOS_API + '?accion=cargar_usuarios').then(function(r){ return r.json(); }).catch(function(){ return {}; })
+          fetch(HORARIOS_API + '?accion=cargar_usuarios').then(function(r){ return r.json(); }).catch(function(){ return {}; }),
+          fetch(HORARIOS_API + '?accion=cargar_certificados').then(function(r){ return r.json(); }).catch(function(){ return {}; })
         ]);
         var perfiles = perfilesResp.empleados || [];
         var usuarios = usuariosResp.usuarios || [];
-        renderGrupos(horariosResp.data || [], perfiles, usuarios);
+        var certs    = (certsResp.certificados || []).map(function(c) {
+          var f = String(c.fecha || '');
+          if (f.includes('/')) { var p=f.split('/'); f=p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0'); }
+          return Object.assign({}, c, { fecha: f.substring(0,10) });
+        });
+        renderGrupos(horariosResp.data || [], perfiles, usuarios, certs);
         renderAnuncios(anunciosResp.anuncios || []);
       } catch(e) {
         ['depoList','oficinaList','anunciosList'].forEach(function(id){
@@ -488,14 +494,12 @@
       }
     }
 
-    function renderGrupos(datos, perfiles, usuarios) {
-      renderSeccion(datos, perfiles, usuarios, GRUPOS_EMPLEADOS['DEPÓSITO'], 'depoList');
-      renderSeccion(datos, perfiles, usuarios, GRUPOS_EMPLEADOS['OFICINA'],  'oficinaList');
+    function renderGrupos(datos, perfiles, usuarios, certs) {
+      renderSeccion(datos, perfiles, usuarios, certs, GRUPOS_EMPLEADOS['DEPÓSITO'], 'depoList');
+      renderSeccion(datos, perfiles, usuarios, certs, GRUPOS_EMPLEADOS['OFICINA'],  'oficinaList');
     }
 
-    function renderDepo(datos, perfiles) { renderGrupos(datos, perfiles, []); }
-
-    function renderSeccion(datos, perfiles, usuarios, empleados, containerId) {
+    function renderSeccion(datos, perfiles, usuarios, certs, empleados, containerId) {
       var now  = new Date();
       var anio = String(now.getFullYear());
       var mesN = now.getMonth(); // 0-based
@@ -549,10 +553,21 @@
         var celular = '';
         if (usuarios && usuarios.length) {
           var usuario = usuarios.find(function(u) {
-            var un = String(u.nombre || u.empleadoNombre || '').trim().toUpperCase();
+            var un = String(u.empleadoNombre || u.nombre || '').trim().toUpperCase();
             return palabras.every(function(w){ return un.includes(w); });
           });
           if (usuario) celular = String(usuario.celular || '').replace(/\D/g,'');
+        }
+
+        // Certificado hoy
+        var hoyISO = anio + '-' + String(mesN+1).padStart(2,'0') + '-' + dia.padStart(2,'0');
+        var cert = null;
+        if (certs && certs.length) {
+          cert = certs.find(function(c) {
+            var cn = String(c.empleado || '').trim().toLowerCase().replace(/^\d+\s+/,'').replace(/\s+/g,' ');
+            var match = palabras.every(function(w){ return cn.includes(w.toLowerCase()); });
+            return match && c.fecha === hoyISO;
+          });
         }
 
         var iniciales = nombre.split(' ').slice(0,2).map(function(p){ return p[0]; }).join('');
@@ -567,11 +582,16 @@
         html += '<div style="width:38px;height:38px;border-radius:50%;background:#0d0d0d;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;letter-spacing:1px;flex-shrink:0;overflow:hidden;">' + avatarHtml + '</div>';
         html += '<div style="flex:1;">';
         html += '<div style="font-size:13px;font-weight:600;color:var(--black)">' + nombre + '</div>';
+        if (cert) {
+          var certLabel = cert.tipo || 'Certificado';
+          var certNota  = cert.nota ? ' · ' + cert.nota : '';
+          html += '<div style="font-size:12px;color:#d97706;margin-top:2px">📋 ' + certLabel + certNota + '</div>';
+        }
         if (turnos.length) {
           turnos.forEach(function(t) {
             html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">🟢 ' + t.entrada + ' – ' + t.salida + (t.nota ? ' · ' + t.nota : '') + '</div>';
           });
-        } else {
+        } else if (!cert) {
           html += '<div style="font-size:12px;color:#94a3b8;margin-top:2px">⚪ Sin turno hoy</div>';
         }
         html += '</div>' + waBtn + '</div>';
