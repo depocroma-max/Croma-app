@@ -201,20 +201,27 @@
     </div>
 
     <!-- PANTALLA JEFE -->
-    <div id="screenJefe" style="display:none;min-height:100vh;background:#f1f1ef;padding:2rem 1.5rem;animation:screenIn .4s cubic-bezier(.22,1,.36,1) both;">
-      <div style="max-width:600px;margin:0 auto;">
+    <div id="screenJefe" style="display:none;min-height:100vh;background:#f1f1ef;animation:screenIn .4s cubic-bezier(.22,1,.36,1) both;">
 
-        <!-- Header -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;">
-          <div>
-            <div style="font-family:var(--font-display);font-size:26px;letter-spacing:2px;color:var(--black)" id="jefeGreeting">Hola, Tincho</div>
-            <div style="font-size:12px;color:#94a3b8;margin-top:2px" id="jefeFecha"></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <button onclick="cargarDatosJefe()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;" title="Actualizar">↻</button>
-            <button onclick="cerrarSesion()" style="height:36px;padding:0 14px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;color:#64748b;font-family:var(--font-body);">Salir</button>
-          </div>
+      <!-- Topbar -->
+      <header style="position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:1.5rem;padding:0 2rem;height:64px;background:rgba(13,13,13,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 6px 24px rgba(0,0,0,.20);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <img src="tridente_solo.png" style="height:28px;width:auto;object-fit:contain;filter:drop-shadow(0 0 4px rgba(232,37,26,0.4));" alt="Croma">
+          <span style="font-family:var(--font-display);font-size:22px;letter-spacing:2px;color:#fff;">CROMA</span>
+          <span style="color:#444;font-size:14px;">|</span>
+          <span style="font-size:11px;font-weight:500;letter-spacing:3px;color:#a0a09a;text-transform:uppercase;">APP</span>
         </div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;color:#a0a09a;" id="jefeFecha"></span>
+          <button onclick="cargarDatosJefe()" title="Actualizar" style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#a0a09a;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;">↻</button>
+          <button onclick="cerrarSesion()" style="height:34px;padding:0 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);cursor:pointer;font-size:12px;color:#a0a09a;font-family:var(--font-body);letter-spacing:.3px;">Salir</button>
+        </div>
+      </header>
+
+      <div style="max-width:600px;margin:0 auto;padding:2rem 1.5rem;">
+
+        <!-- Saludo -->
+        <div style="font-family:var(--font-display);font-size:26px;letter-spacing:2px;color:var(--black);margin-bottom:1.5rem;" id="jefeGreeting">Hola, Tincho</div>
 
         <!-- Depósito hoy -->
         <div style="background:#fff;border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);">
@@ -438,9 +445,9 @@
       var s = document.getElementById('screenJefe');
       s.style.display = 'block';
       var now = new Date();
-      var dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+      var dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
       var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-      document.getElementById('jefeFecha').textContent = dias[now.getDay()] + ', ' + now.getDate() + ' de ' + meses[now.getMonth()] + ' ' + now.getFullYear();
+      document.getElementById('jefeFecha').textContent = dias[now.getDay()] + ' ' + now.getDate() + ' de ' + meses[now.getMonth()];
       document.getElementById('depoFechaLabel').textContent = 'Turnos del día de hoy';
       cargarDatosJefe();
     }
@@ -449,11 +456,13 @@
       document.getElementById('depoList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
       document.getElementById('anunciosList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
       try {
-        var [horariosResp, anunciosResp] = await Promise.all([
+        var [horariosResp, anunciosResp, perfilesResp] = await Promise.all([
           fetch(HORARIOS_API + '?accion=horarios').then(function(r){ return r.json(); }),
-          fetch(HORARIOS_API + '?accion=get_anuncios').then(function(r){ return r.json(); })
+          fetch(HORARIOS_API + '?accion=get_anuncios').then(function(r){ return r.json(); }),
+          fetch(HORARIOS_API + '?accion=perfiles').then(function(r){ return r.json(); }).catch(function(){ return {}; })
         ]);
-        renderDepo(horariosResp.data || []);
+        var perfiles = perfilesResp.perfiles || perfilesResp || {};
+        renderDepo(horariosResp.data || [], perfiles);
         renderAnuncios(anunciosResp.anuncios || []);
       } catch(e) {
         document.getElementById('depoList').innerHTML = '<div style="text-align:center;padding:1rem;color:#dc2626;font-size:13px">Error de conexión</div>';
@@ -461,7 +470,7 @@
       }
     }
 
-    function renderDepo(datos) {
+    function renderDepo(datos, perfiles) {
       var now  = new Date();
       var anio = String(now.getFullYear());
       var mesN = now.getMonth(); // 0-based
@@ -492,9 +501,8 @@
 
       var html = '';
       DEPO_EMPLEADOS.forEach(function(nombre) {
-        // Buscar por nombre parcial (por si tiene legajo delante)
-        var apellido = nombre.split(' ')[0]; // FRAN, LEONARDO, ROCIO
-        var turno = norm.find(function(r) {
+        var apellido = nombre.split(' ')[0];
+        var turnos = norm.filter(function(r) {
           var empMatch = r.emp.includes(nombre) || r.emp.includes(apellido);
           var diaMatch = r.dia === dia || r.dia === dia.padStart(2,'0');
           var mesMatch = matchMes(r.mes);
@@ -502,13 +510,27 @@
           return empMatch && diaMatch && mesMatch && anioMatch;
         });
 
+        // Buscar foto en perfiles (clave puede ser el nombre)
+        var fotoUrl = '';
+        if (perfiles) {
+          var keys = Object.keys(perfiles);
+          var pk = keys.find(function(k){ return k.toUpperCase().includes(apellido); });
+          if (pk && perfiles[pk] && perfiles[pk].foto_url) fotoUrl = perfiles[pk].foto_url;
+        }
+
         var iniciales = nombre.split(' ').slice(0,2).map(function(p){ return p[0]; }).join('');
+        var avatarHtml = fotoUrl
+          ? '<img src="' + fotoUrl + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML=\'' + iniciales + '\'">'
+          : iniciales;
+
         html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f1ef;">';
-        html += '<div style="width:38px;height:38px;border-radius:50%;background:#0d0d0d;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;letter-spacing:1px;flex-shrink:0;">' + iniciales + '</div>';
+        html += '<div style="width:38px;height:38px;border-radius:50%;background:#0d0d0d;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;letter-spacing:1px;flex-shrink:0;overflow:hidden;">' + avatarHtml + '</div>';
         html += '<div style="flex:1;">';
         html += '<div style="font-size:13px;font-weight:600;color:var(--black)">' + nombre + '</div>';
-        if (turno) {
-          html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">🟢 ' + turno.entrada + ' – ' + turno.salida + (turno.nota ? ' · ' + turno.nota : '') + '</div>';
+        if (turnos.length) {
+          turnos.forEach(function(t) {
+            html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">🟢 ' + t.entrada + ' – ' + t.salida + (t.nota ? ' · ' + t.nota : '') + '</div>';
+          });
         } else {
           html += '<div style="font-size:12px;color:#94a3b8;margin-top:2px">⚪ Sin turno hoy</div>';
         }
