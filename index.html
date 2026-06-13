@@ -462,25 +462,53 @@
     }
 
     function renderDepo(datos) {
-      var now = new Date();
+      var now  = new Date();
       var anio = String(now.getFullYear());
-      var mes  = MESES_ES[now.getMonth()];
+      var mesN = now.getMonth(); // 0-based
       var dia  = String(now.getDate());
+
+      // Normalizar cada registro: soportar campos en mayúscula o minúscula
+      var norm = datos.map(function(r) {
+        return {
+          emp:      String(r.EMPLEADO || r.empleado || '').trim().toUpperCase(),
+          anio:     String(r.AÑO      || r.anio     || r.año  || '').trim(),
+          mes:      String(r.MES      || r.mes       || '').trim().toUpperCase(),
+          dia:      String(r.DIA      || r.dia       || '').trim(),
+          entrada:  String(r.H_ENTRADA|| r.entrada   || '').trim(),
+          salida:   String(r.H_SALIDA || r.salida    || '').trim(),
+          nota:     String(r.NOTA     || r.nota      || '').trim(),
+        };
+      });
+
+      // Posibles formatos de mes
+      var mesNombre = MESES_ES[mesN];                    // JUNIO
+      var mesCorto  = mesNombre.substring(0, 3);         // JUN
+      var mesNum    = String(mesN + 1);                  // 6
+      var mesNum0   = mesNum.padStart(2,'0');            // 06
+
+      function matchMes(m) {
+        return m === mesNombre || m === mesCorto || m === mesNum || m === mesNum0;
+      }
+
       var html = '';
       DEPO_EMPLEADOS.forEach(function(nombre) {
-        var turno = datos.find(function(r) {
-          return String(r.EMPLEADO||'').trim().toUpperCase() === nombre
-              && String(r.AÑO||'') === anio
-              && String(r.MES||'').trim().toUpperCase() === mes
-              && String(r.DIA||'').trim() === dia;
+        // Buscar por nombre parcial (por si tiene legajo delante)
+        var apellido = nombre.split(' ')[0]; // FRAN, LEONARDO, ROCIO
+        var turno = norm.find(function(r) {
+          var empMatch = r.emp.includes(nombre) || r.emp.includes(apellido);
+          var diaMatch = r.dia === dia || r.dia === dia.padStart(2,'0');
+          var mesMatch = matchMes(r.mes);
+          var anioMatch = r.anio === anio || r.anio === '';
+          return empMatch && diaMatch && mesMatch && anioMatch;
         });
+
         var iniciales = nombre.split(' ').slice(0,2).map(function(p){ return p[0]; }).join('');
         html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f1ef;">';
         html += '<div style="width:38px;height:38px;border-radius:50%;background:#0d0d0d;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;letter-spacing:1px;flex-shrink:0;">' + iniciales + '</div>';
         html += '<div style="flex:1;">';
         html += '<div style="font-size:13px;font-weight:600;color:var(--black)">' + nombre + '</div>';
         if (turno) {
-          html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">🟢 ' + (turno.H_ENTRADA||'') + ' – ' + (turno.H_SALIDA||'') + (turno.NOTA ? ' · ' + turno.NOTA : '') + '</div>';
+          html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">🟢 ' + turno.entrada + ' – ' + turno.salida + (turno.nota ? ' · ' + turno.nota : '') + '</div>';
         } else {
           html += '<div style="font-size:12px;color:#94a3b8;margin-top:2px">⚪ Sin turno hoy</div>';
         }
