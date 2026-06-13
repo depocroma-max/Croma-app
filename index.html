@@ -200,6 +200,49 @@
       <button class="selector-logout" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
 
+    <!-- PANTALLA JEFE -->
+    <div id="screenJefe" style="display:none;min-height:100vh;background:#f1f1ef;padding:2rem 1.5rem;animation:screenIn .4s cubic-bezier(.22,1,.36,1) both;">
+      <div style="max-width:600px;margin:0 auto;">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;">
+          <div>
+            <div style="font-family:var(--font-display);font-size:26px;letter-spacing:2px;color:var(--black)" id="jefeGreeting">Hola, Tincho</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:2px" id="jefeFecha"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button onclick="cargarDatosJefe()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;" title="Actualizar">↻</button>
+            <button onclick="cerrarSesion()" style="height:36px;padding:0 14px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;color:#64748b;font-family:var(--font-body);">Salir</button>
+          </div>
+        </div>
+
+        <!-- Depósito hoy -->
+        <div style="background:#fff;border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;font-size:18px;">🏭</div>
+            <div>
+              <div style="font-family:var(--font-display);font-size:17px;letter-spacing:1.5px;color:var(--black)">DEPÓSITO HOY</div>
+              <div style="font-size:11px;color:#94a3b8" id="depoFechaLabel"></div>
+            </div>
+          </div>
+          <div id="depoList"><div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div></div>
+        </div>
+
+        <!-- Anuncios -->
+        <div style="background:#fff;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#fef9ec;display:flex;align-items:center;justify-content:center;font-size:18px;">📣</div>
+            <div>
+              <div style="font-family:var(--font-display);font-size:17px;letter-spacing:1.5px;color:var(--black)">ANUNCIOS</div>
+              <div style="font-size:11px;color:#94a3b8">Últimas novedades enviadas</div>
+            </div>
+          </div>
+          <div id="anunciosList"><div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div></div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -213,6 +256,7 @@
       'roca':       { pass:'roca2024',   rol:'encargado', suc:'14 ROCA' },
       'agus':       { pass:'agus2024',   rol:'operador',  suc:null },
       'depo':       { pass:'depo2024',   rol:'encargado', suc:'DEPO' },
+      'tincho':     { pass:'tincho2023', rol:'jefe',      suc:null },
     };
     var URL_PANEL    = 'https://depocroma-max.github.io/croma-panel/';
     var URL_HORARIOS = 'https://depocroma-max.github.io/croma-horarios/';
@@ -232,6 +276,8 @@
         var rol = store.getItem('croma_rol') || 'admin';
         if (rol === 'empleado') {
           location.href = URL_HORARIOS;
+        } else if (rol === 'jefe') {
+          mostrarJefe();
         } else {
           mostrarSelector(rol);
         }
@@ -354,6 +400,8 @@
     function redirigirPorRol(rol) {
       if (rol === 'empleado') {
         location.href = URL_HORARIOS;
+      } else if (rol === 'jefe') {
+        mostrarJefe();
       } else {
         mostrarSelector(rol);
       }
@@ -379,6 +427,86 @@
       if (cardHorarios) cardHorarios.style.display = (rol === 'encargado' || rol === 'operador') ? 'none' : '';
       document.getElementById('screenLogin').classList.remove('active');
       document.getElementById('screenSelector').classList.add('active');
+    }
+
+    var DEPO_EMPLEADOS = ['FRAN PACHADO', 'LEONARDO CHAVEZ', 'ROCIO SANCHEZ'];
+    var MESES_ES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+
+    function mostrarJefe() {
+      document.getElementById('screenLogin').classList.remove('active');
+      document.getElementById('screenSelector').classList.remove('active');
+      var s = document.getElementById('screenJefe');
+      s.style.display = 'block';
+      var now = new Date();
+      var dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      document.getElementById('jefeFecha').textContent = dias[now.getDay()] + ', ' + now.getDate() + ' de ' + meses[now.getMonth()] + ' ' + now.getFullYear();
+      document.getElementById('depoFechaLabel').textContent = 'Turnos del día de hoy';
+      cargarDatosJefe();
+    }
+
+    async function cargarDatosJefe() {
+      document.getElementById('depoList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
+      document.getElementById('anunciosList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
+      try {
+        var [horariosResp, anunciosResp] = await Promise.all([
+          fetch(HORARIOS_API + '?accion=horarios').then(function(r){ return r.json(); }),
+          fetch(HORARIOS_API + '?accion=get_anuncios').then(function(r){ return r.json(); })
+        ]);
+        renderDepo(horariosResp.data || []);
+        renderAnuncios(anunciosResp.anuncios || []);
+      } catch(e) {
+        document.getElementById('depoList').innerHTML = '<div style="text-align:center;padding:1rem;color:#dc2626;font-size:13px">Error de conexión</div>';
+        document.getElementById('anunciosList').innerHTML = '<div style="text-align:center;padding:1rem;color:#dc2626;font-size:13px">Error de conexión</div>';
+      }
+    }
+
+    function renderDepo(datos) {
+      var now = new Date();
+      var anio = String(now.getFullYear());
+      var mes  = MESES_ES[now.getMonth()];
+      var dia  = String(now.getDate());
+      var html = '';
+      DEPO_EMPLEADOS.forEach(function(nombre) {
+        var turno = datos.find(function(r) {
+          return String(r.EMPLEADO||'').trim().toUpperCase() === nombre
+              && String(r.AÑO||'') === anio
+              && String(r.MES||'').trim().toUpperCase() === mes
+              && String(r.DIA||'').trim() === dia;
+        });
+        var iniciales = nombre.split(' ').slice(0,2).map(function(p){ return p[0]; }).join('');
+        html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f1ef;">';
+        html += '<div style="width:38px;height:38px;border-radius:50%;background:#0d0d0d;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;letter-spacing:1px;flex-shrink:0;">' + iniciales + '</div>';
+        html += '<div style="flex:1;">';
+        html += '<div style="font-size:13px;font-weight:600;color:var(--black)">' + nombre + '</div>';
+        if (turno) {
+          html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">🟢 ' + (turno.H_ENTRADA||'') + ' – ' + (turno.H_SALIDA||'') + (turno.NOTA ? ' · ' + turno.NOTA : '') + '</div>';
+        } else {
+          html += '<div style="font-size:12px;color:#94a3b8;margin-top:2px">⚪ Sin turno hoy</div>';
+        }
+        html += '</div></div>';
+      });
+      document.getElementById('depoList').innerHTML = html || '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:1rem">Sin datos</div>';
+    }
+
+    function renderAnuncios(anuncios) {
+      if (!anuncios.length) {
+        document.getElementById('anunciosList').innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:1rem">No hay anuncios recientes</div>';
+        return;
+      }
+      var recientes = anuncios.slice(-8).reverse();
+      var html = '';
+      recientes.forEach(function(a) {
+        html += '<div style="padding:12px 0;border-bottom:1px solid #f1f1ef;">';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">';
+        html += '<div style="font-size:13px;font-weight:600;color:var(--black)">' + (a.titulo||'Anuncio') + '</div>';
+        html += '<div style="font-size:11px;color:#94a3b8;white-space:nowrap">' + (a.fecha||'') + '</div>';
+        html += '</div>';
+        if (a.mensaje) html += '<div style="font-size:12px;color:#64748b;line-height:1.5">' + a.mensaje + '</div>';
+        if (a.destino) html += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">👥 ' + a.destino + '</div>';
+        html += '</div>';
+      });
+      document.getElementById('anunciosList').innerHTML = html;
     }
 
     if ('serviceWorker' in navigator) {
