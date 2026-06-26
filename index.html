@@ -299,9 +299,18 @@
         setTimeout(function() { splash.style.display = 'none'; }, 600);
       }, 1200);
 
+      if (new URLSearchParams(location.search).get('logout')) {
+        clearSession();
+        sessionStorage.removeItem('croma_horarios_session');
+        localStorage.removeItem('croma_horarios_session');
+        history.replaceState(null, '', location.pathname);
+        mostrarLogin();
+        return;
+      }
+
       var user = getUser();
       if (user) {
-        if (user.rol === 'empleado') location.href = URL_HORARIOS;
+        if (user.rol === 'empleado') irA('horarios');
         else if (user.rol === 'jefe') mostrarJefe();
         else mostrarSelector(user.rol);
       } else {
