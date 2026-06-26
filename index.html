@@ -265,21 +265,32 @@
   </div>
 
   <script>
-    var CREDS = {
-      'admin':      { pass:'cromacajas', rol:'admin',     suc:null },
-      'paseo':      { pass:'paseo2024',  rol:'encargado', suc:'01 PASEO' },
-      'wave':       { pass:'wave2024',   rol:'encargado', suc:'05 WAVE' },
-      'cipolletti': { pass:'cipo2024',   rol:'encargado', suc:'09 CIPO SAN MARTIN' },
-      'perito':     { pass:'perito2024', rol:'encargado', suc:'10 PERITO MORENO' },
-      'centenario': { pass:'cente2024',  rol:'encargado', suc:'12 CENTENARIO' },
-      'roca':       { pass:'roca2024',   rol:'encargado', suc:'14 ROCA' },
-      'agus':       { pass:'agus2024',   rol:'operador',  suc:null },
-      'depo':       { pass:'depo2024',   rol:'encargado', suc:'DEPO' },
-      'tincho':     { pass:'tincho2023', rol:'jefe',      suc:null },
-    };
+    var BACKEND_URL  = 'https://cromawave.dyndns.org:3000';
     var URL_PANEL    = 'https://depocroma-max.github.io/croma-panel/';
     var URL_HORARIOS = 'https://depocroma-max.github.io/croma-horarios/';
-    var HORARIOS_API = 'https://script.google.com/macros/s/AKfycbzEwxqe32k8lzi0_8sj1zAjj7Fd9mT5viE79jRxQsFWWl_MSnEGYspH8tDBOPWicTEF/exec';
+
+    // ── Sesión (token JWT en sessionStorage / localStorage) ──────────────────
+    function getToken() {
+      return sessionStorage.getItem('croma_token') || localStorage.getItem('croma_token');
+    }
+    function getUser() {
+      var t = getToken();
+      if (!t) return null;
+      try {
+        var payload = JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+        if (payload.exp * 1000 < Date.now()) { clearSession(); return null; }
+        return payload;
+      } catch(e) { clearSession(); return null; }
+    }
+    function saveSession(token, recordar) {
+      sessionStorage.setItem('croma_token', token);
+      if (recordar) localStorage.setItem('croma_token', token);
+      else localStorage.removeItem('croma_token');
+    }
+    function clearSession() {
+      sessionStorage.removeItem('croma_token');
+      localStorage.removeItem('croma_token');
+    }
 
     window.addEventListener('load', function() {
       setTimeout(function() {
@@ -288,31 +299,14 @@
         setTimeout(function() { splash.style.display = 'none'; }, 600);
       }, 1200);
 
-      var authSession = sessionStorage.getItem('croma_auth') === '1';
-      var authLocal   = localStorage.getItem('croma_auth') === '1' && localStorage.getItem('croma_remember') === '1';
-      if (authSession || authLocal) {
-        var store = authSession ? sessionStorage : localStorage;
-        var rol = store.getItem('croma_rol') || 'admin';
-        if (rol === 'empleado') {
-          location.href = URL_HORARIOS;
-        } else if (rol === 'jefe') {
-          mostrarJefe();
-        } else {
-          mostrarSelector(rol);
-        }
+      var user = getUser();
+      if (user) {
+        if (user.rol === 'empleado') location.href = URL_HORARIOS;
+        else if (user.rol === 'jefe') mostrarJefe();
+        else mostrarSelector(user.rol);
       } else {
         mostrarLogin();
       }
-
-      document.getElementById('inputUser').addEventListener('input', function() {
-        var u = this.value.trim().toLowerCase();
-        var esConocido = !!CREDS[u];
-        document.getElementById('labelPass').textContent = esConocido ? 'Contraseña' : 'PIN de horarios';
-        document.getElementById('inputPass').placeholder = esConocido ? '••••••••' : '1234';
-        document.getElementById('formDesc').textContent  = esConocido
-          ? 'Ingresá tu contraseña para acceder al sistema.'
-          : 'Ingresá tu PIN de horarios para ver tu perfil.';
-      });
 
       document.getElementById('btnLogin').addEventListener('click', hacerLogin);
       document.getElementById('inputPass').addEventListener('keydown', function(e) {
@@ -331,88 +325,77 @@
     }
 
     async function hacerLogin() {
-      var user     = document.getElementById('inputUser').value.trim().toLowerCase();
-      var pass     = document.getElementById('inputPass').value.trim();
+      var usuario  = document.getElementById('inputUser').value.trim().toLowerCase();
+      var password = document.getElementById('inputPass').value.trim();
       var recordar = document.getElementById('inputRecordar').checked;
       var errEl    = document.getElementById('formError');
       errEl.textContent = '';
-      if (!user || !pass) { errEl.textContent = 'Completá usuario y contraseña.'; return; }
+      if (!usuario || !password) { errEl.textContent = 'Completá usuario y contraseña.'; return; }
       var btn = document.getElementById('btnLogin');
       btn.disabled = true;
       btn.textContent = 'Verificando...';
+
       try {
-        var cred = CREDS[user];
-        if (cred) {
-          if (cred.pass === pass) {
-            guardarTokenAdmin(user, cred, recordar);
-            redirigirPorRol(cred.rol);
-          } else {
-            errEl.textContent = 'Contraseña incorrecta.';
-          }
+        // Primero intentar login de staff (admin/encargado/etc.)
+        var resp = await fetch(BACKEND_URL + '/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario: usuario, password: password }),
+        });
+
+        if (resp.status === 429) {
+          errEl.textContent = 'Demasiados intentos. Esperá 15 minutos.';
           return;
         }
-        var resp = await fetch(HORARIOS_API + '?accion=cargar_usuarios');
-        if (!resp.ok) throw new Error('sin conexion');
-        var json = await resp.json();
-        var emp  = (json.usuarios || []).find(function(u) {
-          return u.nombre && u.nombre.trim().toLowerCase() === user && String(u.pin) === pass;
-        });
-        if (emp) {
-          guardarTokenEmpleado(user, emp, recordar);
-          redirigirPorRol('empleado');
-        } else {
-          errEl.textContent = 'Usuario o PIN incorrecto.';
+
+        if (resp.ok) {
+          var data = await resp.json();
+          saveSession(data.token, recordar);
+          // Para la app de horarios, guardar datos de empleado si aplica
+          if (data.empleadoData) {
+            var sesionStr = JSON.stringify({ usuario: data.empleadoData });
+            sessionStorage.setItem('croma_horarios_session', sesionStr);
+            if (recordar) localStorage.setItem('croma_horarios_session', sesionStr);
+          }
+          redirigirPorRol(data.rol);
+          return;
         }
+
+        // Si no es un usuario de staff, intentar login por PIN de empleado
+        var respPin = await fetch(BACKEND_URL + '/auth/pin-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre: usuario, pin: password }),
+        });
+
+        if (respPin.status === 429) {
+          errEl.textContent = 'Demasiados intentos. Esperá 15 minutos.';
+          return;
+        }
+
+        if (respPin.ok) {
+          var pinData = await respPin.json();
+          saveSession(pinData.token, recordar);
+          var sesionStr = JSON.stringify({ usuario: pinData.empleadoData });
+          sessionStorage.setItem('croma_horarios_session', sesionStr);
+          if (recordar) localStorage.setItem('croma_horarios_session', sesionStr);
+          redirigirPorRol('empleado');
+          return;
+        }
+
+        errEl.textContent = 'Usuario o contraseña incorrectos.';
       } catch(err) {
-        errEl.textContent = 'Error de conexión. Intentá de nuevo.';
+        errEl.textContent = 'Error de conexión. Verificá tu conexión a internet.';
       } finally {
         btn.disabled = false;
         btn.textContent = 'Ingresar';
       }
     }
 
-    function guardarTokenAdmin(user, cred, recordar) {
-      sessionStorage.setItem('croma_auth','1');
-      sessionStorage.setItem('croma_rol', cred.rol);
-      sessionStorage.setItem('croma_suc', cred.suc||'');
-      sessionStorage.setItem('croma_user', user);
-      sessionStorage.removeItem('croma_horarios_session');
-      if (recordar) {
-        localStorage.setItem('croma_remember','1');
-        localStorage.setItem('croma_auth','1');
-        localStorage.setItem('croma_rol', cred.rol);
-        localStorage.setItem('croma_suc', cred.suc||'');
-        localStorage.setItem('croma_user', user);
-        localStorage.removeItem('croma_horarios_session');
-      } else {
-        ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(function(k){ localStorage.removeItem(k); });
-        localStorage.setItem('croma_user', user);
-      }
-    }
-
-    function guardarTokenEmpleado(user, empData, recordar) {
-      var sesionStr = JSON.stringify({ usuario: empData });
-      sessionStorage.setItem('croma_auth','1');
-      sessionStorage.setItem('croma_rol','empleado');
-      sessionStorage.setItem('croma_suc', empData.sucursal||'');
-      sessionStorage.setItem('croma_user', user);
-      sessionStorage.setItem('croma_horarios_session', sesionStr);
-      if (recordar) {
-        localStorage.setItem('croma_remember','1');
-        localStorage.setItem('croma_auth','1');
-        localStorage.setItem('croma_rol','empleado');
-        localStorage.setItem('croma_suc', empData.sucursal||'');
-        localStorage.setItem('croma_user', user);
-        localStorage.setItem('croma_horarios_session', sesionStr);
-      } else {
-        ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(function(k){ localStorage.removeItem(k); });
-        localStorage.setItem('croma_user', user);
-      }
-    }
-
     function cerrarSesion() {
-      sessionStorage.clear();
-      ['croma_remember','croma_auth','croma_rol','croma_suc','croma_horarios_session'].forEach(function(k){ localStorage.removeItem(k); });
+      clearSession();
+      sessionStorage.removeItem('croma_horarios_session');
+      localStorage.removeItem('croma_horarios_session');
       location.reload();
     }
 
@@ -436,10 +419,11 @@
     }
 
     function mostrarSelector(rol) {
-      if (!rol) rol = sessionStorage.getItem('croma_rol') || localStorage.getItem('croma_rol') || 'encargado';
-      var user = sessionStorage.getItem('croma_user') || localStorage.getItem('croma_user') || '';
-      if (user) document.getElementById('selectorSub').textContent =
-        'Hola ' + user.charAt(0).toUpperCase() + user.slice(1) + ', ¿a dónde vas hoy?';
+      var user = getUser();
+      var nombre = (user && user.usuario) ? user.usuario : '';
+      if (nombre) document.getElementById('selectorSub').textContent =
+        'Hola ' + nombre.charAt(0).toUpperCase() + nombre.slice(1) + ', ¿a dónde vas hoy?';
+      if (!rol && user) rol = user.rol;
       var cardPanel = document.getElementById('cardPanel');
       if (cardPanel) cardPanel.style.display = (rol === 'horarios') ? 'none' : '';
       var cardHorarios = document.getElementById('cardHorarios');
@@ -467,16 +451,26 @@
       cargarDatosJefe();
     }
 
+    function apiGet(accion) {
+      var token = getToken();
+      return fetch(BACKEND_URL + '/api/gas?accion=' + accion, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(r) {
+        if (r.status === 401) { clearSession(); location.reload(); }
+        return r.json();
+      });
+    }
+
     async function cargarDatosJefe() {
       document.getElementById('depoList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
       document.getElementById('anunciosList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
       try {
         var [horariosResp, anunciosResp, perfilesResp, usuariosResp, certsResp] = await Promise.all([
-          fetch(HORARIOS_API + '?accion=horarios').then(function(r){ return r.json(); }),
-          fetch(HORARIOS_API + '?accion=get_anuncios').then(function(r){ return r.json(); }),
-          fetch(HORARIOS_API + '?accion=perfiles').then(function(r){ return r.json(); }).catch(function(){ return {}; }),
-          fetch(HORARIOS_API + '?accion=cargar_usuarios').then(function(r){ return r.json(); }).catch(function(){ return {}; }),
-          fetch(HORARIOS_API + '?accion=cargar_certificados').then(function(r){ return r.json(); }).catch(function(){ return {}; })
+          apiGet('horarios'),
+          apiGet('get_anuncios'),
+          apiGet('perfiles').catch(function(){ return {}; }),
+          apiGet('cargar_usuarios').catch(function(){ return {}; }),
+          apiGet('cargar_certificados').catch(function(){ return {}; })
         ]);
         var perfiles = perfilesResp.empleados || [];
         var usuarios = usuariosResp.usuarios || [];
