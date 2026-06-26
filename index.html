@@ -336,7 +336,6 @@
       btn.textContent = 'Verificando...';
 
       try {
-        // Primero intentar login de staff (admin/encargado/etc.)
         var resp = await fetch(BACKEND_URL + '/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -351,35 +350,12 @@
         if (resp.ok) {
           var data = await resp.json();
           saveSession(data.token, recordar);
-          // Para la app de horarios, guardar datos de empleado si aplica
           if (data.empleadoData) {
             var sesionStr = JSON.stringify({ usuario: data.empleadoData });
             sessionStorage.setItem('croma_horarios_session', sesionStr);
             if (recordar) localStorage.setItem('croma_horarios_session', sesionStr);
           }
           redirigirPorRol(data.rol);
-          return;
-        }
-
-        // Si no es un usuario de staff, intentar login por PIN de empleado
-        var respPin = await fetch(BACKEND_URL + '/auth/pin-login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre: usuario, pin: password }),
-        });
-
-        if (respPin.status === 429) {
-          errEl.textContent = 'Demasiados intentos. Esperá 15 minutos.';
-          return;
-        }
-
-        if (respPin.ok) {
-          var pinData = await respPin.json();
-          saveSession(pinData.token, recordar);
-          var sesionStr = JSON.stringify({ usuario: pinData.empleadoData });
-          sessionStorage.setItem('croma_horarios_session', sesionStr);
-          if (recordar) localStorage.setItem('croma_horarios_session', sesionStr);
-          redirigirPorRol('empleado');
           return;
         }
 
