@@ -90,20 +90,35 @@
     .login-footer { margin-top:1.5rem; text-align:center; font-size:11px; color:#c0c0ba; }
 
     /* SELECTOR */
-    #screenSelector { display:none; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:3rem 2rem; background:var(--gray-50); animation:screenIn .4s cubic-bezier(.22,1,.36,1) both; }
+    #screenSelector { display:none; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:3rem 2rem 2rem; background:linear-gradient(135deg,#f5f5fa 0%,#fdf0f0 50%,#f0f4fd 100%); animation:screenIn .4s cubic-bezier(.22,1,.36,1) both; }
     #screenSelector.active { display:flex; }
-    .selector-title { font-family:var(--font-display); font-size:28px; letter-spacing:2px; color:var(--black); margin-bottom:.5rem; text-align:center; }
-    .selector-sub { font-size:13px; color:#64748b; margin-bottom:2.5rem; text-align:center; }
-    .app-cards { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; max-width:680px; width:100%; }
-    .app-card { background:#fff; border:1px solid #e2e8f0; border-radius:20px; padding:2rem 1.75rem; cursor:pointer; text-decoration:none; color:inherit; transition:box-shadow .18s,transform .18s,border-color .18s; display:flex; flex-direction:column; gap:1rem; }
-    .app-card:hover { box-shadow:0 8px 32px rgba(0,0,0,.1); transform:translateY(-3px); border-color:#cbd5e1; }
-    .app-card-icon { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; }
-    .app-card-name { font-family:var(--font-display); font-size:22px; letter-spacing:1.5px; color:var(--black); }
-    .app-card-desc { font-size:12px; color:#64748b; line-height:1.5; }
-    .app-card-arrow { margin-top:auto; font-size:18px; color:#cbd5e1; transition:color .15s,transform .15s; }
-    .app-card:hover .app-card-arrow { color:var(--black); transform:translateX(4px); }
-    .selector-logout { margin-top:2rem; font-size:12px; color:#94a3b8; background:none; border:none; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
-    .selector-logout:hover { color:var(--accent); }
+    .sel-logo { display:flex; align-items:center; gap:10px; margin-bottom:2.5rem; }
+    .sel-logo-icon { width:36px; height:36px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.10); display:flex; align-items:center; justify-content:center; }
+    .sel-logo-icon img { width:22px; height:auto; }
+    .sel-logo-name { font-family:var(--font-display); font-size:22px; letter-spacing:2px; color:#1a1a2e; }
+    .selector-title { font-size:38px; font-weight:700; color:#1a1a2e; margin-bottom:.5rem; text-align:center; letter-spacing:-.5px; }
+    .selector-sub { font-size:14px; color:#64748b; margin-bottom:2.5rem; text-align:center; }
+    .app-cards { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; max-width:720px; width:100%; }
+    .app-card { background:#fff; border:none; border-radius:24px; padding:2rem 1.75rem 1.75rem; cursor:pointer; text-decoration:none; color:inherit; box-shadow:0 4px 20px rgba(0,0,0,.07); transition:box-shadow .18s,transform .18s; display:flex; flex-direction:column; gap:0; position:relative; overflow:hidden; }
+    .app-card::before { content:''; position:absolute; top:-30px; right:-30px; width:100px; height:100px; border-radius:50%; opacity:.35; }
+    #cardPanel::before { background:radial-gradient(circle,#fca5a5,transparent 70%); }
+    #cardHorarios::before { background:radial-gradient(circle,#93c5fd,transparent 70%); }
+    .app-card:hover { box-shadow:0 10px 36px rgba(0,0,0,.13); transform:translateY(-3px); }
+    .app-card-icon { width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:1.25rem; }
+    .app-card-name { font-weight:700; font-size:17px; color:#1a1a2e; margin-bottom:.4rem; letter-spacing:.2px; }
+    .app-card-desc { font-size:13px; color:#64748b; line-height:1.55; margin-bottom:1.5rem; }
+    .app-card-btn { display:flex; align-items:center; gap:10px; font-size:13px; color:#475569; font-weight:500; }
+    .app-card-btn-circle { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; transition:transform .15s; }
+    #cardPanel .app-card-btn-circle { background:#fee2e2; color:#e8251a; }
+    #cardHorarios .app-card-btn-circle { background:#dbeafe; color:#3b82f6; }
+    .app-card:hover .app-card-btn-circle { transform:translateX(3px); }
+    .sel-security { display:flex; align-items:center; gap:14px; background:#fff; border-radius:16px; padding:14px 20px; max-width:720px; width:100%; margin-top:1.5rem; box-shadow:0 2px 10px rgba(0,0,0,.05); }
+    .sel-security-icon { font-size:20px; color:#3b82f6; flex-shrink:0; }
+    .sel-security-text strong { display:block; font-size:13px; font-weight:600; color:#1a1a2e; }
+    .sel-security-text span { font-size:12px; color:#64748b; }
+    .sel-security-lock { margin-left:auto; font-size:20px; color:#cbd5e1; }
+    .selector-logout { margin-top:1.5rem; font-size:12px; color:#94a3b8; background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:6px; transition:color .15s; }
+    .selector-logout:hover { color:#e8251a; }
 
     @media (max-width:760px) {
       body { overflow:auto; }
@@ -120,7 +135,10 @@
       .login-card { box-shadow:none; border-radius:0; padding:0; background:transparent; max-width:100%; }
       .login-card-title { font-size:28px; }
       .form-field { margin-bottom:10px; }
-      .app-cards { grid-template-columns:1fr; max-width:360px; }
+      .app-cards { grid-template-columns:1fr; max-width:400px; }
+      .selector-title { font-size:28px; }
+      #screenSelector { padding:2rem 1.25rem 1.5rem; }
+      .sel-logo { margin-bottom:1.75rem; }
     }
   </style>
 </head>
@@ -177,27 +195,45 @@
     </div>
 
     <div id="screenSelector">
-      <p class="selector-title">¿A dónde vas hoy?</p>
-      <p class="selector-sub" id="selectorSub">Selecioná la sección que querés abrir.</p>
+      <div class="sel-logo">
+        <div class="sel-logo-icon">
+          <img src="tridente_solo.png" alt="Croma">
+        </div>
+        <span class="sel-logo-name">Croma<span style="font-weight:300">Hub</span></span>
+      </div>
+      <h1 class="selector-title">¿A dónde vas hoy?</h1>
+      <p class="selector-sub" id="selectorSub">Seleccioná el área en la que vas a trabajar.</p>
       <div class="app-cards">
         <a class="app-card" id="cardPanel" href="#" onclick="irA('panel');return false;">
           <div class="app-card-icon" style="background:#fee2e2">📦</div>
-          <div>
-            <div class="app-card-name">PANEL</div>
-            <div class="app-card-desc">Pedidos, cajas de locales y venta de entradas.</div>
+          <div class="app-card-name">Panel</div>
+          <div class="app-card-desc">Gestioná pedidos, cajas de locales y venta de entradas.</div>
+          <div class="app-card-btn">
+            <div class="app-card-btn-circle">→</div>
+            Ir al panel
           </div>
-          <div class="app-card-arrow">→</div>
         </a>
         <a class="app-card" id="cardHorarios" href="#" onclick="irA('horarios');return false;">
           <div class="app-card-icon" style="background:#dbeafe">🗓</div>
-          <div>
-            <div class="app-card-name">HORARIOS</div>
-            <div class="app-card-desc">Turnos, empleados, jornadas y certificados.</div>
+          <div class="app-card-name">Horarios</div>
+          <div class="app-card-desc">Administrá turnos, empleados, jornadas y certificados.</div>
+          <div class="app-card-btn">
+            <div class="app-card-btn-circle">→</div>
+            Ir a horarios
           </div>
-          <div class="app-card-arrow">→</div>
         </a>
       </div>
-      <button class="selector-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+      <div class="sel-security">
+        <span class="sel-security-icon">🛡️</span>
+        <div class="sel-security-text">
+          <strong>Acceso seguro</strong>
+          <span>Tu información está protegida y solo vos podés verla.</span>
+        </div>
+        <span class="sel-security-lock">🔒</span>
+      </div>
+      <button class="selector-logout" onclick="cerrarSesion()">
+        <span style="font-size:14px">↪</span> Cerrar sesión
+      </button>
     </div>
 
     <!-- PANTALLA JEFE -->
