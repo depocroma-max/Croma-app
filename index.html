@@ -378,7 +378,12 @@
     function irA(dest) {
       var token = getToken();
       var base = dest === 'panel' ? URL_PANEL : URL_HORARIOS;
-      location.href = base + '?token=' + encodeURIComponent(token);
+      var url = base + '?token=' + encodeURIComponent(token);
+      if (dest === 'horarios') {
+        var ses = sessionStorage.getItem('croma_horarios_session') || localStorage.getItem('croma_horarios_session');
+        if (ses) url += '&hsession=' + encodeURIComponent(ses);
+      }
+      location.href = url;
     }
 
     function redirigirPorRol(rol) {
