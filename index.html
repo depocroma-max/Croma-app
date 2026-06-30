@@ -105,6 +105,7 @@
     .app-card::before { content:''; position:absolute; top:-30px; right:-30px; width:100px; height:100px; border-radius:50%; opacity:.35; }
     #cardPanel::before { background:radial-gradient(circle,#fca5a5,transparent 70%); }
     #cardHorarios::before { background:radial-gradient(circle,#93c5fd,transparent 70%); }
+    #cardAnalisis::before { background:radial-gradient(circle,#c4b5fd,transparent 70%); }
     .app-card:hover { box-shadow:0 10px 36px rgba(0,0,0,.13); transform:translateY(-3px); }
     .app-card-icon { width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:1.25rem; }
     .app-card-name { font-weight:700; font-size:17px; color:#1a1a2e; margin-bottom:.4rem; letter-spacing:.2px; }
@@ -113,6 +114,7 @@
     .app-card-btn-circle { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; transition:transform .15s; }
     #cardPanel .app-card-btn-circle { background:#fee2e2; color:#e8251a; }
     #cardHorarios .app-card-btn-circle { background:#dbeafe; color:#3b82f6; }
+    #cardAnalisis .app-card-btn-circle { background:#ede9fe; color:#7c3aed; }
     .app-card:hover .app-card-btn-circle { transform:translateX(3px); }
     .sel-security { display:flex; align-items:center; gap:14px; background:#fff; border-radius:16px; padding:14px 20px; max-width:720px; width:100%; margin-top:1.5rem; box-shadow:0 2px 10px rgba(0,0,0,.05); }
     .sel-security-icon { font-size:20px; color:#3b82f6; flex-shrink:0; }
@@ -224,6 +226,15 @@
             Ir a horarios
           </div>
         </a>
+        <a class="app-card" id="cardAnalisis" href="#" onclick="irA('analisis');return false;" style="display:none">
+          <div class="app-card-icon" style="background:#ede9fe">📊</div>
+          <div class="app-card-name">Análisis</div>
+          <div class="app-card-desc">Analizá ingresos, sell-through y oportunidades por marca, rubro y sucursal.</div>
+          <div class="app-card-btn">
+            <div class="app-card-btn-circle">→</div>
+            Ir a análisis
+          </div>
+        </a>
       </div>
       <div class="sel-security">
         <span class="sel-security-icon">🛡️</span>
@@ -306,6 +317,7 @@
     var BACKEND_URL  = 'https://api.croma-app.com.ar';
     var URL_PANEL    = 'https://panel.croma-app.com.ar/';
     var URL_HORARIOS = 'https://horarios.croma-app.com.ar/';
+    var URL_ANALISIS = 'https://depocroma-max.github.io/croma-analisis-main/';
 
     function escapeHTML(str) {
       return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
@@ -457,7 +469,10 @@
 
     function irA(dest) {
       var token = getToken();
-      var base = dest === 'panel' ? URL_PANEL : URL_HORARIOS;
+      var base;
+      if (dest === 'panel') base = URL_PANEL;
+      else if (dest === 'analisis') base = URL_ANALISIS;
+      else base = URL_HORARIOS;
       // Hash (#) en lugar de query string: no se envía al servidor ni aparece en logs
       var hash = 'token=' + encodeURIComponent(token);
       if (dest === 'horarios') {
@@ -496,6 +511,8 @@
       if (cardPanel) cardPanel.style.display = (rol === 'horarios') ? 'none' : '';
       var cardHorarios = document.getElementById('cardHorarios');
       if (cardHorarios) cardHorarios.style.display = (rol === 'encargado' || rol === 'operador') ? 'none' : '';
+      var cardAnalisis = document.getElementById('cardAnalisis');
+      if (cardAnalisis) cardAnalisis.style.display = (rol === 'admin') ? '' : 'none';
       document.getElementById('screenLogin').classList.remove('active');
       document.getElementById('screenSelector').classList.add('active');
     }
