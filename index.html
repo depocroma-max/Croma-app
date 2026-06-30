@@ -12,6 +12,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Croma App">
   <link rel="apple-touch-icon" href="icon.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src https://api.croma-app.com.ar; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta name="referrer" content="no-referrer">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -170,14 +173,14 @@
             <label>Usuario</label>
             <div class="field-wrap">
               <img class="field-icon" src="avatar.svg" alt="">
-              <input type="text" id="inputUser" placeholder="Tu usuario" autocomplete="username">
+              <input type="text" id="inputUser" placeholder="Tu usuario" autocomplete="username" maxlength="50" required>
             </div>
           </div>
           <div class="form-field" id="fieldPass">
             <label id="labelPass">Contraseña</label>
             <div class="field-wrap">
               <img class="field-icon" src="lock.svg" alt="">
-              <input type="password" id="inputPass" placeholder="••••••••" autocomplete="current-password">
+              <input type="password" id="inputPass" placeholder="••••••••" autocomplete="current-password" maxlength="128" required>
               <button class="field-eye" id="btnTogglePass" type="button" tabindex="-1" onclick="togglePass()"><img src="eye.svg" alt="" style="width:18px;height:18px;display:block;filter:brightness(0) saturate(100%) invert(60%);"></button>
             </div>
           </div>
@@ -305,6 +308,13 @@
     var URL_PANEL    = 'https://panel.croma-app.com.ar/';
     var URL_HORARIOS = 'https://horarios.croma-app.com.ar/';
 
+    function escapeHTML(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+
+    var MAX_INTENTOS = 5;
+    var BLOQUEO_MS   = 30000;
+
     // ── Sesión (token JWT en sessionStorage / localStorage) ──────────────────
     function getToken() {
       return sessionStorage.getItem('croma_token') || localStorage.getItem('croma_token');
@@ -374,9 +384,18 @@
       var password = document.getElementById('inputPass').value.trim();
       var recordar = document.getElementById('inputRecordar').checked;
       var errEl    = document.getElementById('formError');
+      var btn      = document.getElementById('btnLogin');
       errEl.textContent = '';
       if (!usuario || !password) { errEl.textContent = 'Completá usuario y contraseña.'; return; }
-      var btn = document.getElementById('btnLogin');
+
+      var intentos = parseInt(sessionStorage.getItem('croma_intentos') || '0');
+      var bloqueadoHasta = parseInt(sessionStorage.getItem('croma_bloqueado') || '0');
+      if (Date.now() < bloqueadoHasta) {
+        var seg = Math.ceil((bloqueadoHasta - Date.now()) / 1000);
+        errEl.textContent = 'Demasiados intentos. Esperá ' + seg + ' segundos.';
+        return;
+      }
+
       btn.disabled = true;
       btn.textContent = 'Verificando...';
 
@@ -393,6 +412,8 @@
         }
 
         if (resp.ok) {
+          sessionStorage.removeItem('croma_intentos');
+          sessionStorage.removeItem('croma_bloqueado');
           var data = await resp.json();
           saveSession(data.token, recordar);
           if (data.empleadoData) {
@@ -404,12 +425,27 @@
           return;
         }
 
-        errEl.textContent = 'Usuario o contraseña incorrectos.';
+        intentos++;
+        sessionStorage.setItem('croma_intentos', intentos);
+        if (intentos >= MAX_INTENTOS) {
+          var hasta = Date.now() + BLOQUEO_MS;
+          sessionStorage.setItem('croma_bloqueado', hasta);
+          errEl.textContent = 'Demasiados intentos fallidos. Esperá 30 segundos.';
+          btn.disabled = true;
+          setTimeout(function() {
+            sessionStorage.removeItem('croma_intentos');
+            sessionStorage.removeItem('croma_bloqueado');
+            btn.disabled = false;
+          }, BLOQUEO_MS);
+          return;
+        }
+        errEl.textContent = 'Usuario o contraseña incorrectos. (' + (MAX_INTENTOS - intentos) + ' intentos restantes)';
       } catch(err) {
         errEl.textContent = 'Error de conexión. Verificá tu conexión a internet.';
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'Ingresar';
+        if (!btn.disabled) btn.textContent = 'Ingresar';
+        else if (!sessionStorage.getItem('croma_bloqueado')) { btn.disabled = false; btn.textContent = 'Ingresar'; }
+        else btn.textContent = 'Bloqueado...';
       }
     }
 
@@ -423,12 +459,13 @@
     function irA(dest) {
       var token = getToken();
       var base = dest === 'panel' ? URL_PANEL : URL_HORARIOS;
-      var url = base + '?token=' + encodeURIComponent(token);
+      // Hash (#) en lugar de query string: no se envía al servidor ni aparece en logs
+      var hash = 'token=' + encodeURIComponent(token);
       if (dest === 'horarios') {
         var ses = sessionStorage.getItem('croma_horarios_session') || localStorage.getItem('croma_horarios_session');
-        if (ses) url += '&hsession=' + encodeURIComponent(ses);
+        if (ses) hash += '&hsession=' + encodeURIComponent(ses);
       }
-      location.href = url;
+      location.href = base + '#' + hash;
     }
 
     function redirigirPorRol(rol) {
@@ -609,13 +646,13 @@
         html += '<div style="flex:1;">';
         html += '<div style="font-size:13px;font-weight:600;color:var(--black)">' + nombre + '</div>';
         if (cert) {
-          var certLabel = cert.tipo || 'Certificado';
-          var certNota  = cert.nota ? ' · ' + cert.nota : '';
+          var certLabel = escapeHTML(cert.tipo || 'Certificado');
+          var certNota  = cert.nota ? ' · ' + escapeHTML(cert.nota) : '';
           html += '<div style="font-size:12px;color:#d97706;margin-top:2px">📋 ' + certLabel + certNota + '</div>';
         }
         if (turnos.length) {
           turnos.forEach(function(t) {
-            html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">🟢 ' + t.entrada + ' – ' + t.salida + (t.nota ? ' · ' + t.nota : '') + '</div>';
+            html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">🟢 ' + escapeHTML(t.entrada) + ' – ' + escapeHTML(t.salida) + (t.nota ? ' · ' + escapeHTML(t.nota) : '') + '</div>';
           });
         } else if (!cert) {
           html += '<div style="font-size:12px;color:#94a3b8;margin-top:2px">⚪ Sin turno hoy</div>';
@@ -635,11 +672,11 @@
       recientes.forEach(function(a) {
         html += '<div style="padding:12px 0;border-bottom:1px solid #f7f7f5;">';
         html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">';
-        html += '<div style="font-size:13px;font-weight:600;color:var(--black)">' + (a.titulo||'Anuncio') + '</div>';
-        html += '<div style="font-size:11px;color:#94a3b8;white-space:nowrap">' + (a.fecha||'') + '</div>';
+        html += '<div style="font-size:13px;font-weight:600;color:var(--black)">' + escapeHTML(a.titulo||'Anuncio') + '</div>';
+        html += '<div style="font-size:11px;color:#94a3b8;white-space:nowrap">' + escapeHTML(a.fecha||'') + '</div>';
         html += '</div>';
-        if (a.mensaje) html += '<div style="font-size:12px;color:#64748b;line-height:1.5">' + a.mensaje + '</div>';
-        if (a.destino) html += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">👥 ' + a.destino + '</div>';
+        if (a.mensaje) html += '<div style="font-size:12px;color:#64748b;line-height:1.5">' + escapeHTML(a.mensaje) + '</div>';
+        if (a.destino) html += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">👥 ' + escapeHTML(a.destino) + '</div>';
         html += '</div>';
       });
       document.getElementById('anunciosList').innerHTML = html;
