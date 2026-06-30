@@ -344,6 +344,14 @@
         setTimeout(function() { splash.style.display = 'none'; }, 600);
       }, 1200);
 
+      document.getElementById('btnLogin').addEventListener('click', hacerLogin);
+      document.getElementById('inputPass').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') hacerLogin();
+      });
+      document.getElementById('inputUser').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('inputPass').focus();
+      });
+
       if (new URLSearchParams(location.search).get('logout')) {
         clearSession();
         sessionStorage.removeItem('croma_horarios_session');
@@ -361,14 +369,6 @@
       } else {
         mostrarLogin();
       }
-
-      document.getElementById('btnLogin').addEventListener('click', hacerLogin);
-      document.getElementById('inputPass').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') hacerLogin();
-      });
-      document.getElementById('inputUser').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') document.getElementById('inputPass').focus();
-      });
     });
 
     function togglePass() {
