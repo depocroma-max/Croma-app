@@ -502,8 +502,32 @@
       try { var u = JSON.parse(ses).usuario; return u.sucursal_id || u.sucursal || null; } catch(e) { return null; }
     }
 
+    var SUC_MAP = {
+      '01':'01','01 PASEO':'01',
+      '05':'05','05 WAVE':'05',
+      '09':'09','09 CIPO SAN MARTIN':'09',
+      '10':'10','10 PERITO MORENO':'10',
+      '12':'12','12 CENTENARIO':'12',
+      '14':'14','14 ROCA':'14',
+      'DEPO':'DEPO','OFICINA':'OFICINA'
+    };
+    var SUC_NOMBRES = {
+      '01':'01 PASEO','05':'05 WAVE','09':'09 CIPO SAN MARTIN',
+      '10':'10 PERITO MORENO','12':'12 CENTENARIO','14':'14 ROCA',
+      'DEPO':'DEPO','OFICINA':'OFICINA'
+    };
+
+    function resolverSucId(raw) {
+      if (!raw) return null;
+      if (SUC_MAP[raw]) return SUC_MAP[raw];
+      // intento por prefijo numérico: "05 WAVE" → "05"
+      var prefix = raw.split(' ')[0];
+      return SUC_MAP[prefix] || null;
+    }
+
     function irACheckin() {
-      var sucId = getSucursalId();
+      var sucRaw = getSucursalId();
+      var sucId  = resolverSucId(sucRaw);
       if (!sucId) { alert('No tenés sucursal asignada. Pedile al encargado que te configure.'); return; }
       window.location.href = URL_HORARIOS + 'kiosco.html?local=' + encodeURIComponent(sucId);
     }
@@ -543,16 +567,12 @@
       if (cardHorarios) cardHorarios.style.display = (rol === 'encargado' || rol === 'operador') ? 'none' : '';
       if (cardAnalisis) cardAnalisis.style.display = (rol === 'admin') ? '' : 'none';
 
-      var sucId = getSucursalId();
+      var sucRaw = getSucursalId();
+      var sucId  = resolverSucId(sucRaw);
       if (cardCheckin) {
         cardCheckin.style.display = sucId ? '' : 'none';
         if (sucId) {
-          var nombres = {
-            '01':'01 PASEO','05':'05 WAVE','09':'09 CIPO SAN MARTIN',
-            '10':'10 PERITO MORENO','12':'12 CENTENARIO','14':'14 ROCA',
-            'DEPO':'DEPO','OFICINA':'OFICINA'
-          };
-          var sucNombre = nombres[sucId] || sucId;
+          var sucNombre = SUC_NOMBRES[sucId] || sucId;
           document.getElementById('cardCheckinDesc').textContent =
             'Registrá tu entrada y salida en ' + sucNombre + '.';
         }
