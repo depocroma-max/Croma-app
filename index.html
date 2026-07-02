@@ -103,9 +103,11 @@
     .app-cards { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; max-width:720px; width:100%; }
     .app-card { background:#fff; border:none; border-radius:24px; padding:2rem 1.75rem 1.75rem; cursor:pointer; text-decoration:none; color:inherit; box-shadow:0 4px 20px rgba(0,0,0,.07); transition:box-shadow .18s,transform .18s; display:flex; flex-direction:column; gap:0; position:relative; overflow:hidden; }
     .app-card::before { content:''; position:absolute; top:-30px; right:-30px; width:100px; height:100px; border-radius:50%; opacity:.35; }
-    #cardPanel::before { background:radial-gradient(circle,#fca5a5,transparent 70%); }
+    #cardPanel::before    { background:radial-gradient(circle,#fca5a5,transparent 70%); }
     #cardHorarios::before { background:radial-gradient(circle,#93c5fd,transparent 70%); }
     #cardAnalisis::before { background:radial-gradient(circle,#c4b5fd,transparent 70%); }
+    #cardCheckin::before  { background:radial-gradient(circle,#6ee7b7,transparent 70%); }
+    #cardCheckin .app-card-btn-circle { background:#d1fae5; color:#059669; }
     .app-card:hover { box-shadow:0 10px 36px rgba(0,0,0,.13); transform:translateY(-3px); }
     .app-card-icon { width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:1.25rem; }
     .app-card-name { font-weight:700; font-size:17px; color:#1a1a2e; margin-bottom:.4rem; letter-spacing:.2px; }
@@ -233,6 +235,15 @@
           <div class="app-card-btn">
             <div class="app-card-btn-circle">→</div>
             Ir a análisis
+          </div>
+        </a>
+        <a class="app-card" id="cardCheckin" href="#" onclick="irACheckin();return false;" style="display:none">
+          <div class="app-card-icon" style="background:#d1fae5">⏱</div>
+          <div class="app-card-name">Check in</div>
+          <div class="app-card-desc" id="cardCheckinDesc">Registrá tu entrada y salida de la jornada.</div>
+          <div class="app-card-btn">
+            <div class="app-card-btn-circle">→</div>
+            Fichar
           </div>
         </a>
       </div>
@@ -375,7 +386,7 @@
 
       var user = getUser();
       if (user) {
-        if (user.rol === 'empleado') irA('horarios');
+        if (user.rol === 'empleado') mostrarSelector('empleado');
         else if (user.rol === 'jefe') mostrarJefe();
         else mostrarSelector(user.rol);
       } else {
@@ -482,9 +493,21 @@
       location.href = base + '#' + hash;
     }
 
+    function getSucursalId() {
+      var ses = sessionStorage.getItem('croma_horarios_session') || localStorage.getItem('croma_horarios_session');
+      if (!ses) return null;
+      try { return JSON.parse(ses).usuario.sucursal_id || null; } catch(e) { return null; }
+    }
+
+    function irACheckin() {
+      var sucId = getSucursalId();
+      if (!sucId) { alert('No tenés sucursal asignada. Pedile al encargado que te configure.'); return; }
+      window.location.href = URL_HORARIOS + 'kiosco.html?local=' + encodeURIComponent(sucId);
+    }
+
     function redirigirPorRol(rol) {
       if (rol === 'empleado') {
-        irA('horarios');
+        mostrarSelector(rol);
       } else if (rol === 'jefe') {
         mostrarJefe();
       } else {
@@ -507,12 +530,31 @@
       if (nombre) document.getElementById('selectorSub').textContent =
         'Hola ' + nombre.charAt(0).toUpperCase() + nombre.slice(1) + ', ¿a dónde vas hoy?';
       if (!rol && user) rol = user.rol;
-      var cardPanel = document.getElementById('cardPanel');
-      if (cardPanel) cardPanel.style.display = (rol === 'horarios') ? 'none' : '';
+
+      var cardPanel    = document.getElementById('cardPanel');
       var cardHorarios = document.getElementById('cardHorarios');
-      if (cardHorarios) cardHorarios.style.display = (rol === 'encargado' || rol === 'operador') ? 'none' : '';
       var cardAnalisis = document.getElementById('cardAnalisis');
+      var cardCheckin  = document.getElementById('cardCheckin');
+
+      if (cardPanel)    cardPanel.style.display    = (rol === 'horarios' || rol === 'empleado') ? 'none' : '';
+      if (cardHorarios) cardHorarios.style.display = (rol === 'encargado' || rol === 'operador') ? 'none' : '';
       if (cardAnalisis) cardAnalisis.style.display = (rol === 'admin') ? '' : 'none';
+
+      var sucId = getSucursalId();
+      if (cardCheckin) {
+        cardCheckin.style.display = sucId ? '' : 'none';
+        if (sucId) {
+          var nombres = {
+            '01':'01 PASEO','05':'05 WAVE','09':'09 CIPO SAN MARTIN',
+            '10':'10 PERITO MORENO','12':'12 CENTENARIO','14':'14 ROCA',
+            'DEPO':'DEPO','OFICINA':'OFICINA'
+          };
+          var sucNombre = nombres[sucId] || sucId;
+          document.getElementById('cardCheckinDesc').textContent =
+            'Registrá tu entrada y salida en ' + sucNombre + '.';
+        }
+      }
+
       document.getElementById('screenLogin').classList.remove('active');
       document.getElementById('screenSelector').classList.add('active');
     }
