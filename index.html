@@ -438,11 +438,14 @@
           sessionStorage.removeItem('croma_bloqueado');
           var data = await resp.json();
           saveSession(data.token, recordar);
-          if (data.empleadoData) {
-            var sesionStr = JSON.stringify({ usuario: data.empleadoData });
-            sessionStorage.setItem('croma_horarios_session', sesionStr);
-            if (recordar) localStorage.setItem('croma_horarios_session', sesionStr);
-          }
+          var empleadoData = data.empleadoData || {
+            nombre:   data.usuario || '',
+            sucursal: data.sucursal || null,
+            rol:      data.rol || '',
+          };
+          var sesionStr = JSON.stringify({ usuario: empleadoData });
+          sessionStorage.setItem('croma_horarios_session', sesionStr);
+          if (recordar) localStorage.setItem('croma_horarios_session', sesionStr);
           redirigirPorRol(data.rol);
           return;
         }
