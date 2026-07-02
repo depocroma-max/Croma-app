@@ -496,7 +496,7 @@
     function getSucursalId() {
       var ses = sessionStorage.getItem('croma_horarios_session') || localStorage.getItem('croma_horarios_session');
       if (!ses) return null;
-      try { return JSON.parse(ses).usuario.sucursal_id || null; } catch(e) { return null; }
+      try { var u = JSON.parse(ses).usuario; return u.sucursal_id || u.sucursal || null; } catch(e) { return null; }
     }
 
     function irACheckin() {
