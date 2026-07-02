@@ -385,7 +385,7 @@
 
       var user = getUser();
       if (user) {
-        if (user.rol === 'empleado') mostrarSelector('empleado');
+        if (user.rol === 'empleado') irA('horarios');
         else if (user.rol === 'jefe') mostrarJefe();
         else mostrarSelector(user.rol);
       } else {
@@ -533,7 +533,7 @@
 
     function redirigirPorRol(rol) {
       if (rol === 'empleado') {
-        mostrarSelector(rol);
+        irA('horarios');
       } else if (rol === 'jefe') {
         mostrarJefe();
       } else {
