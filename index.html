@@ -69,7 +69,7 @@
     .field-wrap { position:relative; display:flex; align-items:center; }
     .field-icon { position:absolute; left:12px; width:20px; height:20px; object-fit:contain; pointer-events:none; filter: brightness(0) saturate(100%) invert(25%); }
     .field-wrap input { width:100%; height:46px; padding:0 14px 0 38px; border:1.5px solid #e8e8e4; border-radius:12px; font-family:var(--font-body); font-size:14px; color:#0d0d0d; background:#fafaf8; transition:border .15s,box-shadow .15s; }
-    .field-wrap input:focus { outline:none; border-color:#0d0d0d; background:#fff; box-shadow:0 0 0 3px rgba(13,13,13,.06); }
+    .field-wrap input:focus { outline:none; border-color:var(--accent); background:#fff; box-shadow:0 0 0 3px rgba(232,37,26,.10); }
     .field-wrap input::placeholder { color:#cbd5e1; }
     .field-eye { position:absolute; right:12px; background:none; border:none; cursor:pointer; color:#94a3b8; font-size:16px; padding:4px; line-height:1; transition:color .15s; }
     .field-eye:hover { color:#0d0d0d; }
@@ -128,6 +128,12 @@
     .selector-logout { margin-top:1.5rem; font-size:12px; color:#94a3b8; background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:6px; transition:color .15s; }
     .selector-logout:hover { color:#e8251a; }
 
+    /* ── HUB — Fase 3N ── */
+    .ic-xs { width:13px; height:13px; vertical-align:middle; flex-shrink:0; display:inline-block; }
+    .btn-primary:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+    .jefe-loading { text-align:center; padding:1rem; color:#94a3b8; font-size:13px; }
+    .jefe-error   { text-align:center; padding:1rem; color:#dc2626; font-size:13px; }
+
     @media (max-width:760px) {
       body { overflow:auto; }
       .main { overflow:auto; }
@@ -175,18 +181,18 @@
           <h1 class="login-card-title">¡Bienvenido!</h1>
           <p class="login-card-sub" id="formDesc">Ingresá con tu usuario y contraseña para acceder al sistema.</p>
           <div class="form-field">
-            <label>Usuario</label>
+            <label for="inputUser">Usuario</label>
             <div class="field-wrap">
               <img class="field-icon" src="avatar.svg" alt="">
               <input type="text" id="inputUser" placeholder="Tu usuario" autocomplete="username" maxlength="50" required>
             </div>
           </div>
           <div class="form-field" id="fieldPass">
-            <label id="labelPass">Contraseña</label>
+            <label for="inputPass" id="labelPass">Contraseña</label>
             <div class="field-wrap">
               <img class="field-icon" src="lock.svg" alt="">
               <input type="password" id="inputPass" placeholder="••••••••" autocomplete="current-password" maxlength="128" required>
-              <button class="field-eye" id="btnTogglePass" type="button" tabindex="-1" onclick="togglePass()"><img src="eye.svg" alt="" style="width:18px;height:18px;display:block;filter:brightness(0) saturate(100%) invert(60%);"></button>
+              <button class="field-eye" id="btnTogglePass" type="button" tabindex="-1" aria-label="Mostrar contraseña" onclick="togglePass()"><img src="eye.svg" alt="" style="width:18px;height:18px;display:block;filter:brightness(0) saturate(100%) invert(60%);"></button>
             </div>
           </div>
           <label class="form-remember">
@@ -194,8 +200,8 @@
             <span>Recordar sesión en este dispositivo</span>
           </label>
           <div class="form-error" id="formError"></div>
-          <button class="btn-primary" id="btnLogin">Ingresar</button>
-          <p class="login-footer">© 2024 Croma. Todos los derechos reservados.</p>
+          <button class="btn-primary" id="btnLogin" type="button">Ingresar</button>
+          <p class="login-footer">© 2025 Croma. Todos los derechos reservados.</p>
         </div>
       </div>
     </div>
@@ -283,7 +289,7 @@
         </div>
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
           <span style="font-size:12px;color:#a0a09a;" id="jefeFecha"></span>
-          <button onclick="cargarDatosJefe()" title="Actualizar" style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#a0a09a;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;">↻</button>
+          <button onclick="cargarDatosJefe()" title="Actualizar" aria-label="Actualizar" style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#a0a09a;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></button>
           <button onclick="cerrarSesion()" style="height:34px;padding:0 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);cursor:pointer;font-size:12px;color:#a0a09a;font-family:var(--font-body);letter-spacing:.3px;">Salir</button>
         </div>
       </header>
@@ -296,7 +302,7 @@
         <!-- Anuncios -->
         <div style="background:#fff;border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;">
-            <div style="width:36px;height:36px;border-radius:10px;background:#fef9ec;display:flex;align-items:center;justify-content:center;font-size:18px;">📣</div>
+            <div style="width:36px;height:36px;border-radius:10px;background:#fef9ec;display:flex;align-items:center;justify-content:center;color:#f59e0b;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
             <div>
               <div style="font-family:var(--font-display);font-size:17px;letter-spacing:1.5px;color:var(--black)">ANUNCIOS</div>
               <div style="font-size:11px;color:#94a3b8">Últimas novedades enviadas</div>
@@ -308,7 +314,7 @@
         <!-- Depósito hoy -->
         <div style="background:#fff;border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;">
-            <div style="width:36px;height:36px;border-radius:10px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;font-size:18px;">🏭</div>
+            <div style="width:36px;height:36px;border-radius:10px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;color:#16a34a;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 8.35V20a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12"/><path d="M6 14h12"/><path d="M6 10h12"/></svg></div>
             <div>
               <div style="font-family:var(--font-display);font-size:17px;letter-spacing:1.5px;color:var(--black)">DEPÓSITO HOY</div>
               <div style="font-size:11px;color:#94a3b8" id="depoFechaLabel"></div>
@@ -320,7 +326,7 @@
         <!-- Oficina hoy -->
         <div style="background:#fff;border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;">
-            <div style="width:36px;height:36px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:18px;">🏢</div>
+            <div style="width:36px;height:36px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;color:#3b82f6;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></div>
             <div>
               <div style="font-family:var(--font-display);font-size:17px;letter-spacing:1.5px;color:var(--black)">OFICINA HOY</div>
               <div style="font-size:11px;color:#94a3b8">Turno del día</div>
@@ -334,7 +340,7 @@
 
   </div>
 
-  <script src="croma-icons.js?v=20260703-ds"></script>
+  <script src="croma-icons.js?v=20260706-hub"></script>
   <script>
     var BACKEND_URL  = 'https://api.croma-app.com.ar';
     var URL_PANEL    = 'https://panel.croma-app.com.ar/';
@@ -623,8 +629,8 @@
     }
 
     async function cargarDatosJefe() {
-      document.getElementById('depoList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
-      document.getElementById('anunciosList').innerHTML = '<div style="text-align:center;padding:1rem;color:#94a3b8;font-size:13px">Cargando...</div>';
+      document.getElementById('depoList').innerHTML = '<div class="jefe-loading">Cargando...</div>';
+      document.getElementById('anunciosList').innerHTML = '<div class="jefe-loading">Cargando...</div>';
       try {
         var [horariosResp, anunciosResp, perfilesResp, usuariosResp, certsResp] = await Promise.all([
           apiGet('horarios'),
@@ -644,7 +650,7 @@
         renderAnuncios(anunciosResp.anuncios || []);
       } catch(e) {
         ['depoList','oficinaList','anunciosList'].forEach(function(id){
-          document.getElementById(id).innerHTML = '<div style="text-align:center;padding:1rem;color:#dc2626;font-size:13px">Error de conexión</div>';
+          document.getElementById(id).innerHTML = '<div class="jefe-error">Error de conexión</div>';
         });
       }
     }
@@ -740,23 +746,23 @@
         if (cert) {
           var certLabel = escapeHTML(cert.tipo || 'Certificado');
           var certNota  = cert.nota ? ' · ' + escapeHTML(cert.nota) : '';
-          html += '<div style="font-size:12px;color:#d97706;margin-top:2px">📋 ' + certLabel + certNota + '</div>';
+          html += '<div style="font-size:12px;color:#d97706;margin-top:2px">' + icon('fileText','ic-xs') + ' ' + certLabel + certNota + '</div>';
         }
         if (turnos.length) {
           turnos.forEach(function(t) {
-            html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">🟢 ' + escapeHTML(t.entrada) + ' – ' + escapeHTML(t.salida) + (t.nota ? ' · ' + escapeHTML(t.nota) : '') + '</div>';
+            html += '<div style="font-size:12px;color:#16a34a;margin-top:2px">' + icon('circleCheck','ic-xs') + ' ' + escapeHTML(t.entrada) + ' – ' + escapeHTML(t.salida) + (t.nota ? ' · ' + escapeHTML(t.nota) : '') + '</div>';
           });
         } else if (!cert) {
-          html += '<div style="font-size:12px;color:#94a3b8;margin-top:2px">⚪ Sin turno hoy</div>';
+          html += '<div style="font-size:12px;color:#94a3b8;margin-top:2px">' + icon('clock','ic-xs') + ' Sin turno hoy</div>';
         }
         html += '</div>' + waBtn + '</div>';
       });
-      document.getElementById(containerId).innerHTML = html || '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:1rem">Sin datos</div>';
+      document.getElementById(containerId).innerHTML = html || '<div class="jefe-loading">Sin datos</div>';
     }
 
     function renderAnuncios(anuncios) {
       if (!anuncios.length) {
-        document.getElementById('anunciosList').innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:1rem">No hay anuncios recientes</div>';
+        document.getElementById('anunciosList').innerHTML = '<div class="jefe-loading">No hay anuncios recientes</div>';
         return;
       }
       var recientes = anuncios.slice(-8).reverse();
@@ -768,7 +774,7 @@
         html += '<div style="font-size:11px;color:#94a3b8;white-space:nowrap">' + escapeHTML(a.fecha||'') + '</div>';
         html += '</div>';
         if (a.mensaje) html += '<div style="font-size:12px;color:#64748b;line-height:1.5">' + escapeHTML(a.mensaje) + '</div>';
-        if (a.destino) html += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">👥 ' + escapeHTML(a.destino) + '</div>';
+        if (a.destino) html += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">' + icon('users','ic-xs') + ' ' + escapeHTML(a.destino) + '</div>';
         html += '</div>';
       });
       document.getElementById('anunciosList').innerHTML = html;
