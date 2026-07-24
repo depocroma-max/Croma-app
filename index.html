@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Croma App">
   <link rel="apple-touch-icon" href="icon-512.png">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src https://api.croma-app.com.ar; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src https://api.croma-app.com.ar; img-src 'self' data: https:; media-src https://videos.pexels.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;">
   <meta name="referrer" content="no-referrer">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -49,6 +49,8 @@
 
     /* LEFT PANEL */
     .setup-left { background:#0d0d0d; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:3rem; min-height:100vh; }
+    .setup-left-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.55; }
+    .setup-left-overlay { position:absolute; inset:0; background:linear-gradient(180deg,rgba(13,13,13,.35) 0%,rgba(13,13,13,.55) 55%,rgba(13,13,13,.92) 100%); }
     .setup-left-inner { position:relative; z-index:1; display:flex; flex-direction:column; align-items:flex-start; gap:1.5rem; transition: transform .9s cubic-bezier(.22,1,.36,1); }
     .setup-tagline { font-family:var(--font-display); font-size:28px; letter-spacing:3px; color:rgba(255,255,255,.80); line-height:1.25; max-width:280px; }
 
@@ -103,31 +105,29 @@
     .sel-logo-name { font-family:var(--font-display); font-size:22px; letter-spacing:2px; color:#1a1a2e; }
     .selector-title { font-size:38px; font-weight:700; color:#1a1a2e; margin-bottom:.5rem; text-align:center; letter-spacing:-.5px; }
     .selector-sub { font-size:14px; color:#64748b; margin-bottom:2.5rem; text-align:center; }
-    .app-cards { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; max-width:720px; width:100%; }
-    .app-card { background:#fff; border:none; border-radius:24px; padding:2rem 1.75rem 1.75rem; cursor:pointer; text-decoration:none; color:inherit; box-shadow:0 4px 20px rgba(0,0,0,.07); transition:box-shadow .18s,transform .18s; display:flex; flex-direction:column; gap:0; position:relative; overflow:hidden; align-items:flex-start; }
+    .app-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; max-width:1080px; width:100%; }
+    .app-card { background:#fff; border:1px solid #eeeeea; border-radius:20px; padding:1.75rem 1.75rem 1.5rem; cursor:pointer; text-decoration:none; color:inherit; box-shadow:0 2px 10px rgba(0,0,0,.04); transition:box-shadow .18s,transform .18s,border-color .18s; display:flex; flex-direction:column; gap:0; position:relative; align-items:flex-start; }
     .app-card-desc { flex:1; }
-    .app-card::before { content:''; position:absolute; top:-30px; right:-30px; width:100px; height:100px; border-radius:50%; opacity:.35; }
-    #cardPanel::before    { background:radial-gradient(circle,#fca5a5,transparent 70%); }
-    #cardHorarios::before { background:radial-gradient(circle,#93c5fd,transparent 70%); }
-    #cardAnalisis::before { background:radial-gradient(circle,#c4b5fd,transparent 70%); }
-    #cardCheckin::before  { background:radial-gradient(circle,#6ee7b7,transparent 70%); }
-    #cardCheckin .app-card-btn-circle { background:#d1fae5; color:#059669; }
-    .app-card:hover { box-shadow:0 10px 36px rgba(0,0,0,.13); transform:translateY(-3px); }
-    .app-card-icon { width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:1.25rem; }
-    .app-card-name { font-weight:700; font-size:17px; color:#1a1a2e; margin-bottom:.4rem; letter-spacing:.2px; }
-    .app-card-desc { font-size:13px; color:#64748b; line-height:1.55; margin-bottom:1.5rem; }
+    .app-card:hover { box-shadow:0 8px 28px rgba(0,0,0,.09); transform:translateY(-2px); border-color:#e4e4de; }
+    .app-card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:1.1rem; }
+    .app-card-name { font-weight:700; font-size:18px; color:#1a1a2e; margin-bottom:.4rem; letter-spacing:.2px; }
+    .app-card-desc { font-size:13px; color:#64748b; line-height:1.55; margin-bottom:1.25rem; }
+    .app-card-divider { width:100%; height:1px; background:#eeeeea; margin-bottom:1.1rem; }
     .app-card-btn { display:flex; align-items:center; gap:10px; font-size:13px; color:#475569; font-weight:500; margin-top:auto; }
-    .app-card-btn-circle { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; transition:transform .15s; }
+    .app-card-btn-circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; transition:transform .15s; }
     #cardPanel .app-card-btn-circle { background:#fee2e2; color:#e8251a; }
     #cardHorarios .app-card-btn-circle { background:#dbeafe; color:#3b82f6; }
     #cardAnalisis .app-card-btn-circle { background:#ede9fe; color:#7c3aed; }
+    #cardCheckin .app-card-btn-circle { background:#d1fae5; color:#059669; }
     .app-card:hover .app-card-btn-circle { transform:translateX(3px); }
-    .sel-security { display:flex; align-items:center; gap:14px; background:#fff; border-radius:16px; padding:14px 20px; max-width:720px; width:100%; margin-top:1.5rem; box-shadow:0 2px 10px rgba(0,0,0,.05); }
-    .sel-security-icon { font-size:20px; color:#3b82f6; flex-shrink:0; }
+    .sel-security { display:flex; align-items:center; gap:14px; background:#fff; border:1px solid #eeeeea; border-radius:16px; padding:14px 20px; max-width:1080px; width:100%; margin-top:1.5rem; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+    .sel-security-icon { width:40px; height:40px; border-radius:50%; background:var(--info-bg,#dbeafe); color:var(--info,#2563eb); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .sel-security-text strong { display:block; font-size:13px; font-weight:600; color:#1a1a2e; }
     .sel-security-text span { font-size:12px; color:#64748b; }
-    .sel-security-lock { margin-left:auto; font-size:20px; color:#cbd5e1; }
-    .selector-logout { margin-top:1.5rem; font-size:12px; color:#94a3b8; background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:6px; transition:color .15s; }
+    .sel-security-more { margin-left:auto; font-size:13px; font-weight:600; color:var(--info,#2563eb); background:var(--info-bg,#dbeafe); border:none; border-radius:999px; padding:8px 14px; cursor:pointer; display:flex; align-items:center; gap:4px; white-space:nowrap; text-decoration:none; transition:background .15s; }
+    .sel-security-more:hover { background:#c7ddfc; }
+    .selector-logout { margin:2rem auto 0; background:transparent; color:var(--gray-600,#666660); border:1.5px solid var(--gray-200,#ddddd8); }
+    .selector-logout:hover { border-color:var(--croma-black,#0d0d0d); color:var(--croma-black,#0d0d0d); background:transparent; }
     .selector-logout:hover { color:#e8251a; }
 
     /* ── HUB — Fase 3N ── */
@@ -170,6 +170,10 @@
 
     <div class="screen" id="screenLogin">
       <div class="setup-left">
+        <video class="setup-left-video" autoplay muted loop playsinline poster="logocromapp.png">
+          <source src="https://videos.pexels.com/video-files/5039531/5039531-uhd_1440_2732_25fps.mp4" type="video/mp4">
+        </video>
+        <div class="setup-left-overlay"></div>
         <div class="setup-left-inner">
           <div class="logo-wrap">
             <img src="logocromapp.png" alt="Croma App" style="height:160px;width:auto">
@@ -223,6 +227,7 @@
           </div>
           <div class="app-card-name">Panel</div>
           <div class="app-card-desc">Gestioná pedidos, cajas de locales y venta de entradas.</div>
+          <div class="app-card-divider"></div>
           <div class="app-card-btn">
             <div class="app-card-btn-circle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
             Ir al panel
@@ -234,6 +239,7 @@
           </div>
           <div class="app-card-name">Horarios</div>
           <div class="app-card-desc">Administrá turnos, empleados, jornadas y certificados.</div>
+          <div class="app-card-divider"></div>
           <div class="app-card-btn">
             <div class="app-card-btn-circle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
             Ir a horarios
@@ -245,6 +251,7 @@
           </div>
           <div class="app-card-name">Análisis</div>
           <div class="app-card-desc">Analizá ingresos, sell-through y oportunidades por marca, rubro y sucursal.</div>
+          <div class="app-card-divider"></div>
           <div class="app-card-btn">
             <div class="app-card-btn-circle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
             Ir a análisis
@@ -256,6 +263,7 @@
           </div>
           <div class="app-card-name">Check in</div>
           <div class="app-card-desc" id="cardCheckinDesc">Registrá tu entrada y salida de la jornada.</div>
+          <div class="app-card-divider"></div>
           <div class="app-card-btn">
             <div class="app-card-btn-circle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
             Fichar
@@ -271,8 +279,8 @@
           <span>Tu información está protegida y solo vos podés verla.</span>
         </div>
       </div>
-      <button class="selector-logout btn btn-ghost" onclick="cerrarSesion()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      <button class="btn btn-outline selector-logout" onclick="cerrarSesion()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
         Cerrar sesión
       </button>
     </div>
