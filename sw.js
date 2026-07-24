@@ -1,5 +1,5 @@
 // Service Worker — Croma App
-const CACHE = 'croma-app-v3';
+const CACHE = 'croma-app-v4';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
