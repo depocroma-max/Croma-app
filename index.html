@@ -512,6 +512,11 @@
           return;
         }
 
+        if (resp.status === 503) {
+          errEl.textContent = 'No se pudo verificar tu usuario. Probá de nuevo en un momento.';
+          return;
+        }
+
         if (resp.ok) {
           sessionStorage.removeItem('croma_intentos');
           sessionStorage.removeItem('croma_bloqueado');
