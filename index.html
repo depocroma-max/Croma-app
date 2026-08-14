@@ -695,25 +695,34 @@
       });
     }
 
+    // Endpoints Sheets-API directos (croma-backend), sin pasar por /api/gas (GAS).
+    function apiSheets(path) {
+      var token = getToken();
+      return fetch(BACKEND_URL + path, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(r) {
+        if (r.status === 401) { clearSession(); location.reload(); }
+        return r.json();
+      });
+    }
+
     async function cargarDatosJefe() {
       document.getElementById('depoList').innerHTML = '<div class="jefe-loading">Cargando...</div>';
       document.getElementById('anunciosList').innerHTML = '<div class="jefe-loading">Cargando...</div>';
       try {
-        var [horariosResp, anunciosResp, perfilesResp, usuariosResp, certsResp] = await Promise.all([
-          apiGet('horarios'),
-          apiGet('get_anuncios'),
-          apiGet('perfiles').catch(function(){ return {}; }),
-          apiGet('cargar_usuarios').catch(function(){ return {}; }),
-          apiGet('cargar_certificados').catch(function(){ return {}; })
+        var [horariosResp, anunciosResp, perfilesResp, certsResp] = await Promise.all([
+          apiSheets('/api/horarios-sheets'),
+          apiGet('get_anuncios').catch(function(){ return {}; }),
+          apiSheets('/api/perfiles-sheets').catch(function(){ return {}; }),
+          apiSheets('/api/certificados-sheets').catch(function(){ return {}; })
         ]);
         var perfiles = perfilesResp.empleados || [];
-        var usuarios = usuariosResp.usuarios || [];
         var certs    = (certsResp.certificados || []).map(function(c) {
           var f = String(c.fecha || '');
           if (f.includes('/')) { var p=f.split('/'); f=p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0'); }
           return Object.assign({}, c, { fecha: f.substring(0,10) });
         });
-        renderGrupos(horariosResp.data || [], perfiles, usuarios, certs);
+        renderGrupos(horariosResp.data || [], perfiles, certs);
         renderAnuncios(anunciosResp.anuncios || []);
       } catch(e) {
         ['depoList','oficinaList','anunciosList'].forEach(function(id){
@@ -722,12 +731,12 @@
       }
     }
 
-    function renderGrupos(datos, perfiles, usuarios, certs) {
-      renderSeccion(datos, perfiles, usuarios, certs, GRUPOS_EMPLEADOS['DEPÓSITO'], 'depoList');
-      renderSeccion(datos, perfiles, usuarios, certs, GRUPOS_EMPLEADOS['OFICINA'],  'oficinaList');
+    function renderGrupos(datos, perfiles, certs) {
+      renderSeccion(datos, perfiles, certs, GRUPOS_EMPLEADOS['DEPÓSITO'], 'depoList');
+      renderSeccion(datos, perfiles, certs, GRUPOS_EMPLEADOS['OFICINA'],  'oficinaList');
     }
 
-    function renderSeccion(datos, perfiles, usuarios, certs, empleados, containerId) {
+    function renderSeccion(datos, perfiles, certs, empleados, containerId) {
       var now  = new Date();
       var anio = String(now.getFullYear());
       var mesN = now.getMonth(); // 0-based
@@ -767,24 +776,18 @@
           return empMatch && diaMatch && mesMatch && anioMatch;
         });
 
-        // Foto desde perfiles
+        // Foto y celular desde perfiles
         var fotoUrl = '';
+        var celular = '';
         if (perfiles && perfiles.length) {
           var perfil = perfiles.find(function(p) {
             var pn = String(p.nombre || '').trim().toUpperCase();
             return palabras.every(function(w){ return pn.includes(w); });
           });
-          if (perfil) fotoUrl = perfil.foto_url || '';
-        }
-
-        // Celular desde usuarios
-        var celular = '';
-        if (usuarios && usuarios.length) {
-          var usuario = usuarios.find(function(u) {
-            var un = String(u.empleadoNombre || u.nombre || '').trim().toUpperCase();
-            return palabras.every(function(w){ return un.includes(w); });
-          });
-          if (usuario) celular = String(usuario.celular || '').replace(/\D/g,'');
+          if (perfil) {
+            fotoUrl = perfil.foto_url || '';
+            celular = String(perfil.celular || '').replace(/\D/g,'');
+          }
         }
 
         // Certificado hoy
