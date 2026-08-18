@@ -158,6 +158,7 @@
     .app-card-btn-circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; transition:transform .15s; }
     #cardPanel .app-card-btn-circle { background:#fee2e2; color:#e8251a; }
     #cardHorarios .app-card-btn-circle { background:#dbeafe; color:#3b82f6; }
+    #cardCalendario .app-card-btn-circle { background:#fef3c7; color:#d97706; }
     #cardAnalisis .app-card-btn-circle { background:#ede9fe; color:#7c3aed; }
     #cardCheckin .app-card-btn-circle { background:#d1fae5; color:#059669; }
     .app-card:hover .app-card-btn-circle { transform:translateX(3px); }
@@ -284,6 +285,18 @@
             Ir a horarios
           </div>
         </a>
+        <a class="app-card action-card" id="cardCalendario" href="#" onclick="irA('calendario');return false;">
+          <div class="app-card-icon" style="background:#fef3c7;color:#d97706">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>
+          </div>
+          <div class="app-card-name">Calendario</div>
+          <div class="app-card-desc">Avisos, cierres de local y novedades organizadas en un calendario.</div>
+          <div class="app-card-divider"></div>
+          <div class="app-card-btn">
+            <div class="app-card-btn-circle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+            Ir a calendario
+          </div>
+        </a>
         <a class="app-card action-card" id="cardAnalisis" href="#" onclick="irA('analisis');return false;" style="display:none">
           <div class="app-card-icon" style="background:#ede9fe;color:#7c3aed">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
@@ -391,9 +404,10 @@
   <script src="croma-icons.js?v=20260708-login"></script>
   <script>
     var BACKEND_URL  = 'https://api.croma-app.com.ar';
-    var URL_PANEL    = 'https://panel.croma-app.com.ar/';
-    var URL_HORARIOS = 'https://horarios.croma-app.com.ar/';
-    var URL_ANALISIS = 'https://analisis.croma-app.com.ar/';
+    var URL_PANEL      = 'https://panel.croma-app.com.ar/';
+    var URL_HORARIOS   = 'https://horarios.croma-app.com.ar/';
+    var URL_ANALISIS   = 'https://analisis.croma-app.com.ar/';
+    var URL_CALENDARIO = 'https://calendario.croma-app.com.ar/';
 
     function escapeHTML(str) {
       return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
@@ -570,6 +584,7 @@
       var base;
       if (dest === 'panel') base = URL_PANEL;
       else if (dest === 'analisis') base = URL_ANALISIS;
+      else if (dest === 'calendario') base = URL_CALENDARIO;
       else base = URL_HORARIOS;
       // Hash (#) en lugar de query string: no se envía al servidor ni aparece en logs
       var hash = 'token=' + encodeURIComponent(token);
