@@ -665,7 +665,12 @@
       var cardAnalisis = document.getElementById('cardAnalisis');
       var cardCheckin  = document.getElementById('cardCheckin');
 
-      if (cardPanel)    cardPanel.style.display    = (rol === 'horarios' || rol === 'empleado') ? 'none' : '';
+      // rol 'horarios' (usuario Oficina, ver seed.js) SÍ entra al panel — cae
+      // directo en la vista "Horario semanal" (croma-panel-main/index.html,
+      // obtenerVistaInicial()), que ya lo contempla desde que se agregó
+      // OFICINA a SUCURSALES_HORARIO_SEMANAL. Solo 'empleado' se queda sin
+      // Panel (el suyo es "Horarios", el portal de fichada).
+      if (cardPanel)    cardPanel.style.display    = (rol === 'empleado') ? 'none' : '';
       if (cardHorarios) cardHorarios.style.display = (rol === 'encargado' || rol === 'operador') ? 'none' : '';
       if (cardAnalisis) cardAnalisis.style.display = (rol === 'admin') ? '' : 'none';
 
