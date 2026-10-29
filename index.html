@@ -161,6 +161,7 @@
     #cardHorarios .app-card-btn-circle { background:#dbeafe; color:#3b82f6; }
     #cardCalendario .app-card-btn-circle { background:#fef3c7; color:#d97706; }
     #cardAnalisis .app-card-btn-circle { background:#ede9fe; color:#7c3aed; }
+    #cardInsumos .app-card-btn-circle { background:#ccfbf1; color:#0d9488; }
     #cardCheckin .app-card-btn-circle { background:#d1fae5; color:#059669; }
     .app-card:hover .app-card-btn-circle { transform:translateX(3px); }
     .sel-security { display:flex; align-items:center; gap:14px; background:#fff; border:1px solid #eeeeea; border-radius:16px; padding:14px 20px; max-width:1080px; width:100%; margin-top:1.5rem; box-shadow:0 2px 10px rgba(0,0,0,.04); }
@@ -311,6 +312,18 @@
             Ir a análisis
           </div>
         </a>
+        <a class="app-card action-card" id="cardInsumos" href="#" onclick="irA('insumos');return false;" style="display:none">
+          <div class="app-card-icon" style="background:#ccfbf1;color:#0d9488">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <div class="app-card-name">Insumos</div>
+          <div class="app-card-desc">Controlá stock de bolsas y otros insumos, y planificá las compras.</div>
+          <div class="app-card-divider"></div>
+          <div class="app-card-btn">
+            <div class="app-card-btn-circle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+            Ir a insumos
+          </div>
+        </a>
         <a class="app-card action-card" id="cardCheckin" href="#" onclick="irACheckin();return false;" style="display:none">
           <div class="app-card-icon" style="background:#d1fae5;color:#059669">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -410,6 +423,7 @@
     var URL_PANEL      = 'https://panel.croma-app.com.ar/';
     var URL_HORARIOS   = 'https://horarios.croma-app.com.ar/';
     var URL_ANALISIS   = 'https://analisis.croma-app.com.ar/';
+    var URL_INSUMOS    = 'https://insumos.croma-app.com.ar/';
     var URL_CALENDARIO = 'https://calendario.croma-app.com.ar/';
 
     function escapeHTML(str) {
@@ -587,6 +601,7 @@
       var base;
       if (dest === 'panel') base = URL_PANEL;
       else if (dest === 'analisis') base = URL_ANALISIS;
+      else if (dest === 'insumos') base = URL_INSUMOS;
       else if (dest === 'calendario') base = URL_CALENDARIO;
       else base = URL_HORARIOS;
       // Hash (#) en lugar de query string: no se envía al servidor ni aparece en logs
@@ -663,6 +678,7 @@
       var cardPanel    = document.getElementById('cardPanel');
       var cardHorarios = document.getElementById('cardHorarios');
       var cardAnalisis = document.getElementById('cardAnalisis');
+      var cardInsumos  = document.getElementById('cardInsumos');
       var cardCheckin  = document.getElementById('cardCheckin');
 
       // rol 'horarios' (usuario Oficina, ver seed.js) SÍ entra al panel — cae
@@ -673,6 +689,7 @@
       if (cardPanel)    cardPanel.style.display    = (rol === 'empleado') ? 'none' : '';
       if (cardHorarios) cardHorarios.style.display = (rol === 'encargado' || rol === 'operador') ? 'none' : '';
       if (cardAnalisis) cardAnalisis.style.display = (rol === 'admin') ? '' : 'none';
+      if (cardInsumos)  cardInsumos.style.display  = (rol === 'admin') ? '' : 'none';
 
       var sucRaw = getSucursalId();
       var sucId  = resolverSucId(sucRaw);
