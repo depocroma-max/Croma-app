@@ -487,7 +487,7 @@
       var user = getUser();
       if (user) {
         if (user.rol === 'empleado') irA('horarios');
-        else if (user.rol === 'jefe') mostrarJefe();
+        else if (user.rol === 'jefe') irA('panel'); // jefe cae directo en "En vivo" del panel
         else mostrarSelector(user.rol);
       } else {
         mostrarLogin();
@@ -653,7 +653,7 @@
       if (rol === 'empleado') {
         irA('horarios');
       } else if (rol === 'jefe') {
-        mostrarJefe();
+        irA('panel'); // jefe cae directo en "En vivo" del panel
       } else {
         mostrarSelector(rol);
       }
